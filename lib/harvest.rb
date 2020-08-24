@@ -4,7 +4,8 @@ require 'json'
 require 'date'
 require 'rest-client'
 
-require "harvest/version"
+require 'harvest/version'
+require 'harvest/resources'
 
 def hash_to_struct(hash, struct)
   struct.new(*hash.values_at(*struct.members))
@@ -46,26 +47,51 @@ module Harvest
       )
     end
 
+    # Change context to projects
+    def projects
+      n = self.dup
+      n.state = 'projects'
+      n
+    end
+
+    # 
+    def time_entry()
+      case @state
+      when 'project_tasks'
+        raise NoProjectTasks if @tasks.length == 0
+
+        raise TooManyTasks if @tasks.length > 1
+
+        api_call('time_entry', 'post')
+      end
+    end
+
     # Find task assignments for a project
     def tasks
       case @state
       when 'projects'
         raise TooManyProjects if @projects.length > 1
 
+        raise NoProjectsFound if @projects.nil?
+
         raise ProjectError('No Task Assignments found') unless @projects[0].task_assignments
 
-        @projects[0].task_assignments
-          .map { |ta| yield ta }.reject(&:nil?)
+        n = self.dup
+        n.state = 'project_tasks'
+        n
+
       when ''
-        raise NoProjectsFound
+        raise BadState 'Requires a state to call this method'
       end
     end
 
     def find
       binding.pry
       # case @state
-      # when 'projects'
-
+      # # when 'projects'
+      # when 'project_tasks'
+      #   @projects[0].task_assignments
+      #     .map { |ta| yield ta }.reject(&:nil?)
       # end
     end
 
@@ -84,6 +110,10 @@ module Harvest
           @projects = project_assignments
                       .map { |project| yield project }.reject(&:nil?)
         end
+        self
+      when 'project_tasks'
+        @tasks = @projects[0].task_assignments
+          .map { |ta| yield ta }.reject(&:nil?)
         self
       when ''
         raise BadState 'Requires a state to call this method'
@@ -134,22 +164,14 @@ module Harvest
     def project_assignments(user_id: active_user.id)
       convert_to_sym(api_call("users/#{user_id}/project_assignments")['project_assignments'])
         .map do |project|
-          pa = hash_to_struct(project_assignment, Harvest::ProjectAssignment)
+          pa = hash_to_struct(project, Harvest::ProjectAssignment)
           pa.project = hash_to_struct(pa.project, Harvest::Project)
           pa.client = hash_to_struct(pa.client, Harvest::ResourceClient) # Had to change because my API Client is `Client`
           pa.task_assignments = pa.task_assignments.map { |ta| hash_to_struct(ta, Harvest::TaskAssignment) }
           pa.created_at = DateTime.strptime(pa.created_at)
           pa.updated_at = DateTime.strptime(pa.updated_at)
-
           pa
         end
-    end
-
-    # Change context to projects
-    def projects
-      n = self.dup
-      n.state = 'projects'
-      n
     end
 
     private
@@ -161,189 +183,5 @@ module Harvest
         'Harvest-Account-ID' => account_id
       }
     end
-  end
-
-  # @param :id
-  # @param :first_name
-  # @param :last_name
-  # @param :email
-  # @param :telephone
-  # @param :timezone
-  # @param :weekly_capacity
-  # @param :has_access_to_all_future_projects
-  # @param :is_contractor
-  # @param :is_admin
-  # @param :is_project_manager
-  # @param :can_see_rates
-  # @param :can_create_projects
-  # @param :can_create_invoices
-  # @param :is_active
-  # @param :calendar_integration_enabled
-  # @param :calendar_integration_source
-  # @param :created_at
-  # @param :updated_at
-  # @param :roles
-  # @param :avatar_url
-  User = Struct.new(
-    :id,
-    :first_name,
-    :last_name,
-    :email,
-    :telephone,
-    :timezone,
-    :weekly_capacity,
-    :has_access_to_all_future_projects,
-    :is_contractor,
-    :is_admin,
-    :is_project_manager,
-    :can_see_rates,
-    :can_create_projects,
-    :can_create_invoices,
-    :is_active,
-    :calendar_integration_enabled,
-    :calendar_integration_source,
-    :created_at,
-    :updated_at,
-    :roles,
-    :avatar_url
-  ) do
-  end
-
-  # https://help.getharvest.com/api-v2/projects-api/projects/projects/
-  # @param id [integer]
-  #   Unique ID for the project.
-  # @param client [object]
-  #   An object containing the project’s client id, name, and currency.
-  # @param name [string]
-  #   Unique name for the project.
-  # @param code [string]
-  #   The code associated with the project.
-  # @param is_active [boolean]
-  #   Whether the project is active or archived.
-  # @param is_billable [boolean]
-  #   Whether the project is billable or not.
-  # @param is_fixed_fee [boolean]
-  #   Whether the project is a fixed-fee project or not.
-  # @param bill_by [string]
-  #   The method by which the project is invoiced.
-  # @param hourly_rate [decimal]
-  #   Rate for projects billed by Project Hourly Rate.
-  # @param budget [decimal]
-  #   The budget in hours for the project when budgeting by time.
-  # @param budget_by [string]
-  #   The method by which the project is budgeted.
-  # @param budget_is_monthly [boolean]
-  #   Option to have the budget reset every month.
-  # @param notify_when_over_budget [boolean]
-  #   Whether Project Managers should be notified when the project goes over budget.
-  # @param over_budget_notification_percentage [decimal]
-  #   Percentage value used to trigger over budget email alerts.
-  # @param over_budget_notification_date [date]
-  #   Date of last over budget notification. If none have been sent, this will be null.
-  # @param show_budget_to_all [boolean]
-  #   Option to show project budget to all employees. Does not apply to Total Project Fee projects.
-  # @param cost_budget [decimal]
-  #   The monetary budget for the project when budgeting by money.
-  # @param cost_budget_include_expenses [boolean]
-  #   Option for budget of Total Project Fees projects to include tracked expenses.
-  # @param fee [decimal]
-  #   The amount you plan to invoice for the project. Only used by fixed-fee projects.
-  # @param notes [string]
-  #   Project notes.
-  # @param starts_on [date]
-  #   Date the project was started.
-  # @param ends_on [date]
-  #   Date the project will end.
-  # @param created_at [datetime]
-  #   Date and time the project was created.
-  # @param updated_at [datetime]
-  #   Date and time the project was last updated.
-  Project = Struct.new(
-    :bill_by,
-    :budget,
-    :budget_by,
-    :budget_is_monthly,
-    :client,
-    :code,
-    :cost_budget,
-    :cost_budget_include_expenses,
-    :created_at,
-    :ends_on,
-    :fee,
-    :hourly_rate,
-    :id,
-    :is_active,
-    :is_billable,
-    :is_fixed_fee,
-    :name,
-    :notes,
-    :notify_when_over_budget,
-    :over_budget_notification_date,
-    :over_budget_notification_percentage,
-    :show_budget_to_all,
-    :starts_on,
-    :updated_at,
-    :task_assignments
-  ) do
-  end
-
-  ProjectAssignment = Struct.new(
-    :id,
-    :is_project_manager,
-    :is_active,
-    :use_default_rates,
-    :budget,
-    :created_at,
-    :updated_at,
-    :hourly_rate,
-    :project,
-    :client,
-    :task_assignments
-  ) do
-    def to_project
-      binding.pry
-      project = self.to_h[:project]
-      project[:client] = client
-      project[:task_assignments] = task_assignments
-      hash_to_struct(project, Harvest::Project)
-    end
-  end
-
-  TaskAssignment = Struct.new(
-    :id,
-    :billable,
-    :is_active,
-    :created_at,
-    :updated_at,
-    :hourly_rate,
-    :budget,
-    :task
-  ) do
-    def to_task
-      hash_to_struct(self.to_h[:task], Harvest::Task)
-    end
-  end
-
-  Task = Struct.new(
-    :id,
-    :name,
-    :billable_by_default,
-    :default_hourly_rate,
-    :is_default,
-    :is_active,
-    :created_at,
-    :updated_at
-  ) do
-  end
-  ResourceClient = Struct.new(
-    :id,
-    :name,
-    :is_active,
-    :address,
-    :statement_key,
-    :currency,
-    :created_at,
-    :updated_at
-  ) do
   end
 end

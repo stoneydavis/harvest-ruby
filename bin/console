@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-require "pry"
+require 'pry'
 require 'configparser'
 
 require "bundler/setup"
-require "harvest"
+require 'harvest'
 
 configfile = File.expand_path('~/.config/start-harvest.conf')
 config = ConfigParser.new(configfile).map { |k, v| [k, convert_to_sym(v)] }.to_h
@@ -16,9 +16,9 @@ if harvest.active_user.is_admin
   puts "User is Admin"
 else
   puts "User is not an Admin"
-end  
+end
 
 # project_assignments = harvest.project_assignments
 binding.pry
 
-harvest.projects.select {|project| project if project.name == "Intellaegis - Managed"}
+harvest.projects.select {|project| project if project.project[:name] == "Intellaegis - Managed"}.tasks.select { |ta| ta if ta.task[:name] == 'Teams'}
