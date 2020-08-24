@@ -5,38 +5,147 @@ require 'date'
 require 'rest-client'
 
 require "harvest/version"
-# Struct.new('IOFiber', :read, :write, :fiber, keyword_init: true)
+
+def hash_to_struct(hash, struct)
+  struct.new(*hash.values_at(*struct.members))
+end
+
+def convert_to_sym(data)
+  return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
+
+  return data.map { |v| convert_to_sym(v) } if data.respond_to?('each')
+
+  data
+end
+
 module Harvest
   class Error < StandardError; end
+  class BadState < Error; end
+  class ProjectError < Error; end
+  class TooManyProjects < ProjectError; end
+  class NoProjectsFound < ProjectError; end
 
   # Harvest client, all other resources inherit from this class
   class Client
-    attr_reader :active_user
-    def initialize(domain:, account_id:, personal_token:)
+    attr_reader :active_user, :client
+    attr_accessor :state
+    # @param domain [String] Harvest domain ex: https://company.harvestapp.com
+    # @param account_id [Integer] Harvest Account id
+    # @param personal_token [String] Harvest Personal token
+    # @param admin_api [Boolean] Changes functionality of how the interface works
+    def initialize(domain:, account_id:, personal_token:, admin_api: false)
       @client = RestClient::Resource.new(
         domain.chomp('/') + '/api/v2',
-        {
-          headers: headers(personal_token, account_id)
-        }
+        { headers: headers(personal_token, account_id) }
       )
+      @admin_api = admin_api
       @state = ''
-      @active_user = Harvest::User.new(
-        *JSON.parse(@client['/users/me'].get)
-        .transform_keys { |k| k.to_sym }
-        .values_at(*Harvest::User.members)
+      @active_user = hash_to_struct(
+        convert_to_sym(JSON.parse(@client['/users/me'].get)),
+        Harvest::User
       )
     end
 
-    def find
-    end
-
-    def select
+    # Find task assignments for a project
+    def tasks
       case @state
       when 'projects'
+        raise TooManyProjects if @projects.length > 1
 
+        raise ProjectError('No Task Assignments found') unless @projects[0].task_assignments
+
+        @projects[0].task_assignments
+          .map { |ta| yield ta }.reject(&:nil?)
+      when ''
+        raise NoProjectsFound
       end
     end
 
+    def find
+      binding.pry
+      # case @state
+      # when 'projects'
+
+      # end
+    end
+
+    # Select a subset of all items depending on state
+    def select
+      case @state
+      when 'projects'
+        if @admin_api && @active_user.is_admin
+          # ex block: { |project| project if project.name == "Customer Name" }
+          # TODO: Add support for all projects with pagination
+          admin_projects
+            .map { |project| yield(project) }.reject(&:nil?)
+        else
+          # ex block: { |pa| pa if pa.project.name == "Customer Name" }
+          # ex block: { |pa| pa if pa.project[:name] == "Customer Name" }
+          @projects = project_assignments
+                      .map { |project| yield project }.reject(&:nil?)
+        end
+        self
+      when ''
+        raise BadState 'Requires a state to call this method'
+      end
+    end
+
+    # Make a api call to an endpoint.
+    # @param path [String] Url path part omitting preceeding slash
+    # @param method [String] HTTP Method to call
+    # @param param [Hash] Query Params to pass
+    # @param data [Hash] Body of HTTP request
+    def api_call(path, http_method: 'get', param: nil, data: nil)
+      JSON.parse(@client[path].method(http_method).call(param: param, data: data))
+    end
+
+    # Pagination through request
+    # @param path [String] Url path part omitting preceeding slash
+    # @param method [String] HTTP Method to call
+    # @param param [Hash] Query Params to pass
+    # @param data [Hash] Body of HTTP request
+    def pagination(path, data_key, http_method: 'get', param: nil, data: nil)
+      # TODO: tail call optimization
+      param ||= {}
+
+      param[:page] = 1 unless param.key?(:page)
+
+      http_resp = api_call(path, http_method, param, data)
+
+      resp = http_resp[data_key]
+
+      until http_resp['total_pages'] >= param[:page]
+        param[:page] += 1
+        http_resp = api_call(path, http_method, param, data)
+        resp.concat(http_resp[data_key])
+      end
+      resp
+    end
+
+    # @api private
+    # All Projects
+    def admin_projects
+      convert_to_sym(api_call('projects')['projects'])
+        .map { |project| hash_to_struct(project, Harvest::Project) }
+    end
+
+    # @api private
+    # Projects assigned to the specified user_id
+    def project_assignments(user_id: active_user.id)
+      convert_to_sym(api_call("users/#{user_id}/project_assignments")['project_assignments'])
+        .map do |project|
+          pa = hash_to_struct(project_assignment, Harvest::ProjectAssignment)
+          pa.project = hash_to_struct(pa.project, Harvest::Project)
+          pa.client = hash_to_struct(pa.client, Harvest::ResourceClient) # Had to change because my API Client is `Client`
+          pa.task_assignments = pa.task_assignments.map { |ta| hash_to_struct(ta, Harvest::TaskAssignment) }
+          pa.created_at = DateTime.strptime(pa.created_at)
+          pa.updated_at = DateTime.strptime(pa.updated_at)
+
+          pa
+        end
+    end
+
+    # Change context to projects
     def projects
       n = self.dup
       n.state = 'projects'
@@ -173,6 +282,67 @@ module Harvest
     :over_budget_notification_percentage,
     :show_budget_to_all,
     :starts_on,
+    :updated_at,
+    :task_assignments
+  ) do
+  end
+
+  ProjectAssignment = Struct.new(
+    :id,
+    :is_project_manager,
+    :is_active,
+    :use_default_rates,
+    :budget,
+    :created_at,
+    :updated_at,
+    :hourly_rate,
+    :project,
+    :client,
+    :task_assignments
+  ) do
+    def to_project
+      binding.pry
+      project = self.to_h[:project]
+      project[:client] = client
+      project[:task_assignments] = task_assignments
+      hash_to_struct(project, Harvest::Project)
+    end
+  end
+
+  TaskAssignment = Struct.new(
+    :id,
+    :billable,
+    :is_active,
+    :created_at,
+    :updated_at,
+    :hourly_rate,
+    :budget,
+    :task
+  ) do
+    def to_task
+      hash_to_struct(self.to_h[:task], Harvest::Task)
+    end
+  end
+
+  Task = Struct.new(
+    :id,
+    :name,
+    :billable_by_default,
+    :default_hourly_rate,
+    :is_default,
+    :is_active,
+    :created_at,
+    :updated_at
+  ) do
+  end
+  ResourceClient = Struct.new(
+    :id,
+    :name,
+    :is_active,
+    :address,
+    :statement_key,
+    :currency,
+    :created_at,
     :updated_at
   ) do
   end

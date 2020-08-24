@@ -1,14 +1,24 @@
 #!/usr/bin/env ruby
 
+require "pry"
+require 'configparser'
+
 require "bundler/setup"
 require "harvest"
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+configfile = File.expand_path('~/.config/start-harvest.conf')
+config = ConfigParser.new(configfile).map { |k, v| [k, convert_to_sym(v)] }.to_h
+harvest = Harvest::Client.new(**config['harvest'])
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
+puts "Active user is #{harvest.active_user.first_name} #{harvest.active_user.last_name}"
 
-require "irb"
-IRB.start(__FILE__)
+if harvest.active_user.is_admin
+  puts "User is Admin"
+else
+  puts "User is not an Admin"
+end  
+
+# project_assignments = harvest.project_assignments
+binding.pry
+
+harvest.projects.select {|project| project if project.name == "Intellaegis - Managed"}
