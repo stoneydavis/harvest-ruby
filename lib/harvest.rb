@@ -54,7 +54,7 @@ module Harvest
       n
     end
 
-    # 
+    # Change context to time_entry
     def time_entry()
       case @state
       when 'project_tasks'
@@ -62,7 +62,11 @@ module Harvest
 
         raise TooManyTasks if @tasks.length > 1
 
-        api_call('time_entry', 'post')
+        n = self.dup
+        n.state = 'time_entry'
+        n
+
+
       end
     end
 
@@ -120,16 +124,37 @@ module Harvest
       end
     end
 
+    def create(**kwargs, *args)
+      case @state
+      when 'time_entry'
+        required_keys = %i[spent_date]
+        # TODO check if keys required are present and raise if not
+        possible_keys = %i[spent_date notes external_reference user_id]
+        payload = kwargs.map {|k, v| [k, v] if possible_keys.include?(k)}.to_h
+        payload[:user_id] ||= @active_user.id
+        payload[:task_id] = @tasks[0].id
+        payload[:project_id] = @projects[0].id
+        api_call(
+          'time_entry',
+          'post',
+          data: payload.to_json,
+          headers: { content_type: 'application/json' }
+        )
+      end
+    end
+
     # Make a api call to an endpoint.
+    # @api private
     # @param path [String] Url path part omitting preceeding slash
     # @param method [String] HTTP Method to call
     # @param param [Hash] Query Params to pass
     # @param data [Hash] Body of HTTP request
-    def api_call(path, http_method: 'get', param: nil, data: nil)
-      JSON.parse(@client[path].method(http_method).call(param: param, data: data))
+    def api_call(path, http_method: 'get', param: nil, data: nil, headers: nil)
+      JSON.parse(@client[path].method(http_method).call(param: param, data: data, headers: headers))
     end
 
     # Pagination through request
+    # @api private
     # @param path [String] Url path part omitting preceeding slash
     # @param method [String] HTTP Method to call
     # @param param [Hash] Query Params to pass
@@ -151,6 +176,7 @@ module Harvest
       end
       resp
     end
+
 
     # @api private
     # All Projects
