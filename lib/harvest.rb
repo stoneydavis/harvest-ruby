@@ -1,5 +1,11 @@
-require "harvest/version"
+# frozen_string_literal: true
 
+require 'json'
+require 'date'
+require 'rest-client'
+
+require "harvest/version"
+# Struct.new('IOFiber', :read, :write, :fiber, keyword_init: true)
 module Harvest
   class Error < StandardError; end
 
@@ -14,7 +20,11 @@ module Harvest
         }
       )
       @state = ''
-      @active_user = JSON.parse(@client['/users/me'].get)
+      @active_user = Harvest::User.new(
+        *JSON.parse(@client['/users/me'].get)
+        .transform_keys { |k| k.to_sym }
+        .values_at(*Harvest::User.members)
+      )
     end
 
     def find
@@ -42,6 +52,52 @@ module Harvest
         'Harvest-Account-ID' => account_id
       }
     end
+  end
+
+  # @param :id
+  # @param :first_name
+  # @param :last_name
+  # @param :email
+  # @param :telephone
+  # @param :timezone
+  # @param :weekly_capacity
+  # @param :has_access_to_all_future_projects
+  # @param :is_contractor
+  # @param :is_admin
+  # @param :is_project_manager
+  # @param :can_see_rates
+  # @param :can_create_projects
+  # @param :can_create_invoices
+  # @param :is_active
+  # @param :calendar_integration_enabled
+  # @param :calendar_integration_source
+  # @param :created_at
+  # @param :updated_at
+  # @param :roles
+  # @param :avatar_url
+  User = Struct.new(
+    :id,
+    :first_name,
+    :last_name,
+    :email,
+    :telephone,
+    :timezone,
+    :weekly_capacity,
+    :has_access_to_all_future_projects,
+    :is_contractor,
+    :is_admin,
+    :is_project_manager,
+    :can_see_rates,
+    :can_create_projects,
+    :can_create_invoices,
+    :is_active,
+    :calendar_integration_enabled,
+    :calendar_integration_source,
+    :created_at,
+    :updated_at,
+    :roles,
+    :avatar_url
+  ) do
   end
 
   # https://help.getharvest.com/api-v2/projects-api/projects/projects/
@@ -94,11 +150,29 @@ module Harvest
   # @param updated_at [datetime]
   #   Date and time the project was last updated.
   Project = Struct.new(
-    :bill_by, :budget, :budget_by, :budget_is_monthly, :client, :code,
-    :cost_budget, :cost_budget_include_expenses, :created_at, :ends_on, :fee,
-    :hourly_rate, :id, :is_active, :is_billable, :is_fixed_fee, :name, :notes,
-    :notify_when_over_budget, :over_budget_notification_date,
-    :over_budget_notification_percentage, :show_budget_to_all, :starts_on,
+    :bill_by,
+    :budget,
+    :budget_by,
+    :budget_is_monthly,
+    :client,
+    :code,
+    :cost_budget,
+    :cost_budget_include_expenses,
+    :created_at,
+    :ends_on,
+    :fee,
+    :hourly_rate,
+    :id,
+    :is_active,
+    :is_billable,
+    :is_fixed_fee,
+    :name,
+    :notes,
+    :notify_when_over_budget,
+    :over_budget_notification_date,
+    :over_budget_notification_percentage,
+    :show_budget_to_all,
+    :starts_on,
     :updated_at
   ) do
   end
