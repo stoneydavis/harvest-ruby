@@ -3,18 +3,6 @@
 require 'pry'
 require 'date'
 
-def hash_to_struct(hash, struct)
-  struct.new(*hash.values_at(*struct.members))
-end
-
-def convert_to_sym(data)
-  return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
-
-  return data.map { |v| convert_to_sym(v) } if data.respond_to?('each')
-
-  data
-end
-
 module Harvest
   ProjectAssignment = Struct.new(
     :id,
@@ -29,8 +17,7 @@ module Harvest
     :client,
     :task_assignments,
     keyword_init: true
-  ) do
-  end
+  )
 
   Project = Struct.new(
     :bill_by,
@@ -59,8 +46,7 @@ module Harvest
     :updated_at,
     :task_assignments,
     keyword_init: true
-  ) do
-  end
+  )
 
   TaskAssignment = Struct.new(
     :id,
@@ -72,8 +58,7 @@ module Harvest
     :budget,
     :task,
     keyword_init: true
-  ) do
-  end
+  )
 
   Task = Struct.new(
     :id,
@@ -85,9 +70,7 @@ module Harvest
     :created_at,
     :updated_at,
     keyword_init: true
-
-  ) do
-  end
+  )
 
   ResourceClient = Struct.new(
     :id,
@@ -99,12 +82,48 @@ module Harvest
     :created_at,
     :updated_at,
     keyword_init: true
+  )
 
-  ) do
+  # Conversion for hash to Struct including nested items.
+  class ResourceFactory
+    def project_assignment(data)
+      d = Harvest::ProjectAssignment.new(data)
+      d.project = project(d.project)
+      d.task_assignments = d.task_assignments.map { |ta| task_assignment(ta) }
+      d.client = client(d.client)
+      convert_dates(d)
+    end
+
+    def project(data)
+      d = Harvest::Project.new(data)
+      convert_dates(d)
+    end
+
+    def client(data)
+      d = Harvest::ResourceClient(data)
+      convert_dates(d)
+    end
+
+    def task_assignment(data)
+      d = Harvest::TaskAssignment.new(data)
+      d.task = task(d.task)
+      convert_dates(d)
+    end
+
+    def task(data)
+      d = Harvest::Task.new(data)
+      d
+    end
+
+    def convert_dates(data)
+      data.created_at = DateTime.strptime(data.created_at) unless data.created_at.nil?
+      data.updated_at = DateTime.strptime(data.updated_at) unless data.updated_at.nil?
+      data
+    end
   end
 end
 
-project_assignment = convert_to_sym({
+project_assignment = {
   'id' => 123_456_789,
   'is_project_manager' => false,
   'is_active' => true,
@@ -113,25 +132,21 @@ project_assignment = convert_to_sym({
   'created_at' => '2020-08-14T22:32:40Z',
   'updated_at' => '2020-08-14T22:32:40Z',
   'hourly_rate' => nil,
-  'project' => { 'id' => 12_345_678, 'name' => 'Domino Data Lab Inc. - Managed', 'code' => '16393' },
-  'client' => { 'id' => 1_234_567, 'name' => 'Domino Data Lab Inc.', 'currency' => 'USD' },
+  'project' => { 'id' => 12_345_678, 'name' => 'Customer Name', 'code' => '16393' },
+  'client' => { 'id' => 1_234_567, 'name' => 'Customer Name', 'currency' => 'USD' },
   'task_assignments' => [
     { 'id' => 987_654_321, 'billable' => false, 'is_active' => true, 'created_at' => '2020-08-14T22:32:40Z', 'updated_at' => '2020-08-14T22:32:40Z', 'hourly_rate' => nil, 'budget' => nil, 'task' => { 'id' => 11299508, 'name' => 'Non-Billable - MGMT' } },
     { 'id' => 456_789_123, 'billable' => true, 'is_active' => true, 'created_at' => '2020-08-14T22:32:40Z', 'updated_at' => '2020-08-14T22:32:57Z', 'hourly_rate' => nil, 'budget' => 50.0, 'task' => { 'id' => 11585229, 'name' => 'Teams' } }
   ]
-})
+}
 
 # TODO: How do I refactor this so it does these actions in one fell swoop?
 # Is it at this point that a class is a better idea? 
 # At what point are there too many arguments being passed to a class/Struct?
 # https://rubystyle.guide/#too-many-params
 # How do you resolve this sort of issue?
-pa = Harvest::ProjectAssignment.new(project_assignment)
-pa.project = Harvest::Project.new(pa.project)
-pa.client = Harvest::ResourceClient.new(pa.client) # Had to change because my API Client is `Client`
-pa.task_assignments = pa.task_assignments.map { |ta| Harvest::TaskAssignment.new(ta) }
-pa.created_at = DateTime.strptime(pa.created_at)
-pa.updated_at = DateTime.strptime(pa.updated_at)
+factory = Harvest::ResourceFactory.new
+
+pa = factory.project_assignment(project_assignment)
 
 binding.pry
-
