@@ -100,7 +100,7 @@ module Harvest
     end
 
     def client(data)
-      d = Harvest::ResourceClient(data)
+      d = Harvest::ResourceClient.new(data)
       convert_dates(d)
     end
 

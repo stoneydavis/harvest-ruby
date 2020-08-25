@@ -9,8 +9,7 @@ module Harvest
     :is_default,
     :is_active,
     :created_at,
-    :updated_at
-  ) do
-  end
-
+    :updated_at,
+    keyword_init: true
+  )
 end

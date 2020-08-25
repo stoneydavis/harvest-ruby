@@ -82,7 +82,7 @@ module Harvest
     :billable_rate,
     :cost_rate,
     :created_at,
-    :updated_at
-  ) do
-  end
+    :updated_at,
+    keyword_init: true
+  )
 end

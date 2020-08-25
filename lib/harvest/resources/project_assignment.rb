@@ -12,14 +12,7 @@ module Harvest
     :hourly_rate,
     :project,
     :client,
-    :task_assignments
-  ) do
-    def to_project
-      binding.pry
-      project = self.to_h[:project]
-      project[:client] = client
-      project[:task_assignments] = task_assignments
-      hash_to_struct(project, Harvest::Project)
-    end
-  end
+    :task_assignments,
+    keyword_init: true
+  )
 end

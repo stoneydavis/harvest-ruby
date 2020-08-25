@@ -2,9 +2,10 @@
 
 require 'pry'
 require 'configparser'
-
+require 'date'
 require "bundler/setup"
 require 'harvest'
+require 'active_support/core_ext/date/calculations'
 
 configfile = File.expand_path('~/.config/start-harvest.conf')
 config = ConfigParser.new(configfile).map { |k, v| [k, convert_to_sym(v)] }.to_h
@@ -19,6 +20,29 @@ else
 end
 
 # project_assignments = harvest.project_assignments
-binding.pry
 
-harvest.projects.select {|project| project if project.project[:name] == "Intellaegis - Managed"}.tasks.select { |ta| ta if ta.task[:name] == 'Teams'}
+# harvest
+#   .projects
+#   .select { |project| project if project.project[:name] == 'Intellaegis - Managed' }
+#   .tasks.select { |ta| ta if ta.task.name == 'Teams' }
+#   .time_entry
+#   .create(
+#     **{
+#       spent_date: Date.today.to_s,
+#       notes: 'Testing'
+#       # external_reference: { id: task.id, group_id: task.project.id, permalink: @jira.html_jira_link(task.key) }
+#     }
+#   )
+
+# @api private
+def today
+  beginning_of_day_epoch
+end
+
+def beginning_of_day_epoch
+  DateTime.now.beginning_of_day
+end
+
+harvest.time_entry.select(from: Date.today.yesterday.to_s) {|te| te if te.created_at > today }
+
+binding.pry

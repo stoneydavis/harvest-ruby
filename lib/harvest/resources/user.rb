@@ -43,7 +43,7 @@ module Harvest
     :created_at,
     :updated_at,
     :roles,
-    :avatar_url
-  ) do
-  end
+    :avatar_url,
+    keyword_init: true
+  )
 end

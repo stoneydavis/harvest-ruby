@@ -75,7 +75,7 @@ module Harvest
     :show_budget_to_all,
     :starts_on,
     :updated_at,
-    :task_assignments
-  ) do
-  end
+    :task_assignments,
+    keyword_init: true
+  )
 end

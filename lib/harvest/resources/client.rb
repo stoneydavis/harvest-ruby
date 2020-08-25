@@ -26,8 +26,7 @@ module Harvest
     :statement_key,
     :currency,
     :created_at,
-    :updated_at
-  ) do
-  end
-
+    :updated_at,
+    keyword_init: true
+  )
 end

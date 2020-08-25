@@ -7,10 +7,6 @@ require 'rest-client'
 require 'harvest/version'
 require 'harvest/resources'
 
-def hash_to_struct(hash, struct)
-  struct.new(*hash.values_at(*struct.members))
-end
-
 def convert_to_sym(data)
   return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
 
@@ -26,10 +22,11 @@ module Harvest
   class TooManyProjects < ProjectError; end
   class NoProjectsFound < ProjectError; end
 
-  # Harvest client, all other resources inherit from this class
+  # Harvest client interface
   class Client
     attr_reader :active_user, :client
     attr_accessor :state
+
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
@@ -40,33 +37,27 @@ module Harvest
         { headers: headers(personal_token, account_id) }
       )
       @admin_api = admin_api
+      @factory = Harvest::ResourceFactory.new
       @state = ''
-      @active_user = hash_to_struct(
-        convert_to_sym(JSON.parse(@client['/users/me'].get)),
-        Harvest::User
-      )
+      @active_user = @factory.user(JSON.parse(@client['/users/me'].get))
     end
 
     # Change context to projects
     def projects
-      n = self.dup
-      n.state = 'projects'
-      n
+      change_context('projects')
     end
 
     # Change context to time_entry
-    def time_entry()
+    def time_entry
       case @state
       when 'project_tasks'
-        raise NoProjectTasks if @tasks.length == 0
+        raise NoProjectTasks if @tasks.length.zero?
 
         raise TooManyTasks if @tasks.length > 1
 
-        n = self.dup
-        n.state = 'time_entry'
-        n
-
-
+        change_context('time_entry')
+      when ''
+        change_context('time_entry')
       end
     end
 
@@ -76,72 +67,79 @@ module Harvest
       when 'projects'
         raise TooManyProjects if @projects.length > 1
 
-        raise NoProjectsFound if @projects.nil?
+        raise NoProjectsFound if @projects.length.zero?
 
         raise ProjectError('No Task Assignments found') unless @projects[0].task_assignments
 
-        n = self.dup
-        n.state = 'project_tasks'
-        n
-
+        change_context('project_tasks')
       when ''
         raise BadState 'Requires a state to call this method'
       end
     end
 
-    def find
-      binding.pry
-      # case @state
-      # # when 'projects'
-      # when 'project_tasks'
-      #   @projects[0].task_assignments
-      #     .map { |ta| yield ta }.reject(&:nil?)
-      # end
+    # Find single instance of resource
+    def find(id:)
+      # binding.pry
+      case @state
+      when 'projects'
+        @projects = [@factory.project(api_call("projects/#{id}"))]
+        self
+      end
     end
 
     # Select a subset of all items depending on state
-    def select
+    def select(**params)
       case @state
       when 'projects'
         if @admin_api && @active_user.is_admin
           # ex block: { |project| project if project.name == "Customer Name" }
           # TODO: Add support for all projects with pagination
-          admin_projects
-            .map { |project| yield(project) }.reject(&:nil?)
+          @projects = admin_projects
+                      .map { |project| yield(project) }
+                      .reject(&:nil?)
         else
           # ex block: { |pa| pa if pa.project.name == "Customer Name" }
-          # ex block: { |pa| pa if pa.project[:name] == "Customer Name" }
           @projects = project_assignments
-                      .map { |project| yield project }.reject(&:nil?)
+                      .map { |project| yield project }
+                      .reject(&:nil?)
         end
-        self
       when 'project_tasks'
-        @tasks = @projects[0].task_assignments
-          .map { |ta| yield ta }.reject(&:nil?)
-        self
+        @tasks = @projects[0]
+                 .task_assignments
+                 .map { |ta| yield ta }
+                 .reject(&:nil?)
+      when 'time_entry'
+        @time_entries = time_entries(**params)
+                        .map { |te| yield te }
+                        .reject(&:nil?)
       when ''
         raise BadState 'Requires a state to call this method'
       end
+      self
     end
 
-    def create(**kwargs, *args)
+    # Create an instance of object based on state
+    def create(**kwargs)
       case @state
       when 'time_entry'
-        required_keys = %i[spent_date]
-        # TODO check if keys required are present and raise if not
-        possible_keys = %i[spent_date notes external_reference user_id]
-        payload = kwargs.map {|k, v| [k, v] if possible_keys.include?(k)}.to_h
-        payload[:user_id] ||= @active_user.id
-        payload[:task_id] = @tasks[0].id
-        payload[:project_id] = @projects[0].id
-        api_call(
-          'time_entry',
-          'post',
-          data: payload.to_json,
-          headers: { content_type: 'application/json' }
-        )
+        # required_keys = %i[spent_date]
+        # TODO: check if keys required are present and raise if not
+        payload = time_entry_payload(kwargs)
+        begin
+          api_call(
+            'time_entries',
+            http_method: 'post',
+            payload: payload.to_json,
+            headers: { content_type: 'application/json' }
+          )
+        rescue RestClient::UnprocessableEntity => e
+          puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
+          binding.pry
+        end
       end
     end
+
+    # private
 
     # Make a api call to an endpoint.
     # @api private
@@ -149,8 +147,16 @@ module Harvest
     # @param method [String] HTTP Method to call
     # @param param [Hash] Query Params to pass
     # @param data [Hash] Body of HTTP request
-    def api_call(path, http_method: 'get', param: nil, data: nil, headers: nil)
-      JSON.parse(@client[path].method(http_method).call(param: param, data: data, headers: headers))
+    def api_call(path, http_method: 'get', param: nil, payload: nil, headers: nil)
+      func = @client[path].method(http_method)
+      case http_method
+      when 'get'
+        http_resp = @client[path].get(param: param, payload: payload, headers: headers)
+        binding.pry
+        JSON.parse(http_resp)
+      when 'post'
+        @client[path].post(payload, headers)
+      end
     end
 
     # Pagination through request
@@ -159,30 +165,75 @@ module Harvest
     # @param method [String] HTTP Method to call
     # @param param [Hash] Query Params to pass
     # @param data [Hash] Body of HTTP request
-    def pagination(path, data_key, http_method: 'get', param: nil, data: nil)
+    def pagination(path, data_key, http_method: 'get', page_count: 1, param: nil, payload: nil, entries: nil)
       # TODO: tail call optimization
       param ||= {}
+      entries ||= []
 
-      param[:page] = 1 unless param.key?(:page)
+      binding.pry
+      param[:page] = page_count
 
-      http_resp = api_call(path, http_method, param, data)
+      page = api_call(path, http_method: http_method, param: param, payload: payload)
+      binding.pry
+      entries.concat(page[data_key])
 
-      resp = http_resp[data_key]
+      return entries if page_count >= page['total_pages']
 
-      until http_resp['total_pages'] >= param[:page]
-        param[:page] += 1
-        http_resp = api_call(path, http_method, param, data)
-        resp.concat(http_resp[data_key])
-      end
-      resp
+      page_count += 1
+      pagination(
+        path,
+        data_key,
+        http_method: http_method,
+        page_count: page_count,
+        param: param,
+        payload: payload,
+        entries: entries
+      )
     end
 
+    # @api private
+    def true_project(project)
+      return project.project if project.is_a?(Harvest::ProjectAssignment)
+
+      project
+    end
+
+    # @api private
+    def time_entry_payload(kwargs)
+      possible_keys = %i[spent_date notes external_reference user_id]
+      payload = kwargs.map { |k, v| [k, v] if possible_keys.include?(k) }.to_h
+      payload[:user_id] ||= @active_user.id
+      payload[:task_id] = @tasks[0].task.id
+      payload[:project_id] = true_project(@projects[0]).id
+      payload
+    end
+
+    # @api private
+    def select_projects
+    end
+
+    # @api private
+    def select_project_tasks
+    end
+
+    # @api private
+    def select_time_entries
+      
+    end
 
     # @api private
     # All Projects
     def admin_projects
-      convert_to_sym(api_call('projects')['projects'])
-        .map { |project| hash_to_struct(project, Harvest::Project) }
+      api_call('projects')['projects']
+        .map { |project| @factor.project(project) }
+    end
+
+    # @api private
+    # Time Entries
+    def time_entries(**params)
+      pagination('time_entries', 'time_entries', param: params).map do |time_entry|
+        @factory.time_entry(time_entry)
+      end
     end
 
     # @api private
@@ -190,18 +241,18 @@ module Harvest
     def project_assignments(user_id: active_user.id)
       convert_to_sym(api_call("users/#{user_id}/project_assignments")['project_assignments'])
         .map do |project|
-          pa = hash_to_struct(project, Harvest::ProjectAssignment)
-          pa.project = hash_to_struct(pa.project, Harvest::Project)
-          pa.client = hash_to_struct(pa.client, Harvest::ResourceClient) # Had to change because my API Client is `Client`
-          pa.task_assignments = pa.task_assignments.map { |ta| hash_to_struct(ta, Harvest::TaskAssignment) }
-          pa.created_at = DateTime.strptime(pa.created_at)
-          pa.updated_at = DateTime.strptime(pa.updated_at)
-          pa
+          @factory.project_assignment(project)
         end
     end
 
-    private
+    # @api private
+    def change_context(new_state)
+      n = self.dup
+      n.state = new_state
+      n
+    end
 
+    # @api private
     def headers(personal_token, account_id)
       {
         'User-Agent' => 'Ruby Harvest API Sample',

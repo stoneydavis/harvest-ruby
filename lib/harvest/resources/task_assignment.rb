@@ -9,11 +9,7 @@ module Harvest
     :updated_at,
     :hourly_rate,
     :budget,
-    :task
-  ) do
-    def to_task
-      hash_to_struct(self.to_h[:task], Harvest::Task)
-    end
-  end
-
+    :task,
+    keyword_init: true
+  )
 end
