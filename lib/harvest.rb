@@ -24,7 +24,7 @@ module Harvest
 
   # Harvest client interface
   class Client
-    attr_reader :active_user, :client
+    attr_reader :active_user, :client, :time_entries
     attr_accessor :state
 
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
@@ -109,7 +109,7 @@ module Harvest
                  .map { |ta| yield ta }
                  .reject(&:nil?)
       when 'time_entry'
-        @time_entries = time_entries(**params)
+        @time_entries = select_time_entries(**params)
                         .map { |te| yield te }
                         .reject(&:nil?)
       when ''
@@ -148,11 +148,12 @@ module Harvest
     # @param param [Hash] Query Params to pass
     # @param data [Hash] Body of HTTP request
     def api_call(path, http_method: 'get', param: nil, payload: nil, headers: nil)
-      func = @client[path].method(http_method)
+      # RestClient::Request.process_url_params is looking for query params in the headers obj,
+      headers ||= {}
+      headers['params'] = param
       case http_method
       when 'get'
-        http_resp = @client[path].get(param: param, payload: payload, headers: headers)
-        binding.pry
+        http_resp = @client[path].get(headers)
         JSON.parse(http_resp)
       when 'post'
         @client[path].post(payload, headers)
@@ -170,11 +171,9 @@ module Harvest
       param ||= {}
       entries ||= []
 
-      binding.pry
       param[:page] = page_count
 
       page = api_call(path, http_method: http_method, param: param, payload: payload)
-      binding.pry
       entries.concat(page[data_key])
 
       return entries if page_count >= page['total_pages']
@@ -217,11 +216,6 @@ module Harvest
     end
 
     # @api private
-    def select_time_entries
-      
-    end
-
-    # @api private
     # All Projects
     def admin_projects
       api_call('projects')['projects']
@@ -230,7 +224,7 @@ module Harvest
 
     # @api private
     # Time Entries
-    def time_entries(**params)
+    def select_time_entries(**params)
       pagination('time_entries', 'time_entries', param: params).map do |time_entry|
         @factory.time_entry(time_entry)
       end

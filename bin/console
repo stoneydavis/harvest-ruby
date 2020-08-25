@@ -43,6 +43,6 @@ def beginning_of_day_epoch
   DateTime.now.beginning_of_day
 end
 
-harvest.time_entry.select(from: Date.today.yesterday.to_s) {|te| te if te.created_at > today }
+tes = harvest.time_entry.select(from: Date.today.yesterday.to_s) {|te| te if te.created_at > today }
 
 binding.pry
