@@ -46,12 +46,11 @@ module Harvest
 
       return entries if page_count >= page['total_pages']
 
-      page_count += 1
       pagination(
         path,
         data_key,
         http_method: http_method,
-        page_count: page_count,
+        page_count: page_count + 1,
         param: param,
         payload: payload,
         entries: entries

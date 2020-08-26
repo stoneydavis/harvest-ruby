@@ -11,6 +11,7 @@ require 'harvest/resources/user_assignment'
 
 module Harvest
   # Conversion for hash to Struct including nested items.
+  # TODO: Refactor for figuring out what Struct should be used
   class ResourceFactory
     def project_assignment(data)
       data ||= {}
