@@ -5,7 +5,7 @@ require 'date'
 require 'rest-client'
 
 require 'harvest/version'
-require 'harvest/resources'
+require 'harvest/resourcefactory'
 require 'harvest/httpclient'
 
 def convert_to_sym(data)
@@ -139,7 +139,7 @@ module Harvest
           )
         rescue RestClient::UnprocessableEntity => e
           puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
-          binding.pry
+          raise
         end
       end
     end
@@ -147,6 +147,7 @@ module Harvest
     # private
 
     # @api private
+    # Some API calls will return Project others ProjectAssignment.
     def true_project(project)
       return project.project if project.is_a?(Harvest::ProjectAssignment)
 
