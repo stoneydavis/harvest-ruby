@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module HarvestClientMixin
+module HarvestClientContextMixin
   # Change context to projects
   def projects
     change_context('projects')

@@ -21,7 +21,7 @@ end
 module Harvest
   # Harvest client interface
   class Client
-    include HarvestClientMixin
+    include HarvestClientContextMixin
     attr_reader :active_user, :client, :time_entries, :factory
     attr_accessor :state
 
