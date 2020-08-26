@@ -24,7 +24,7 @@ module Harvest
 
   # Harvest client interface
   class Client
-    attr_reader :active_user, :client, :time_entries
+    attr_reader :active_user, :client, :time_entries, :factory
     attr_accessor :state
 
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
@@ -87,31 +87,35 @@ module Harvest
       end
     end
 
-    # Select a subset of all items depending on state
-    def select(**params)
+    # Discover resources
+    def discover(**params)
       case @state
       when 'projects'
         if @admin_api && @active_user.is_admin
-          # ex block: { |project| project if project.name == "Customer Name" }
-          # TODO: Add support for all projects with pagination
           @projects = admin_projects
-                      .map { |project| yield(project) }
-                      .reject(&:nil?)
         else
-          # ex block: { |pa| pa if pa.project.name == "Customer Name" }
           @projects = project_assignments
-                      .map { |project| yield project }
-                      .reject(&:nil?)
         end
       when 'project_tasks'
         @tasks = @projects[0]
                  .task_assignments
-                 .map { |ta| yield ta }
-                 .reject(&:nil?)
       when 'time_entry'
         @time_entries = select_time_entries(**params)
-                        .map { |te| yield te }
-                        .reject(&:nil?)
+      when ''
+        raise BadState 'Requires a state to call this method'
+      end
+      self
+    end
+
+    # Select a subset of all items depending on state
+    def select(&block)
+      case @state
+      when 'projects'
+        @projects.select(&block)
+      when 'project_tasks'
+        @tasks.select(&block)
+      when 'time_entry'
+        @time_entries.select(&block)
       when ''
         raise BadState 'Requires a state to call this method'
       end

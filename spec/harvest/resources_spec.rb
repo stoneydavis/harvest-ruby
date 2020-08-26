@@ -137,4 +137,20 @@ RSpec.describe Harvest::ResourceFactory do
     expect(te.task_assignment).to have_attributes({ id: 175684707 })
     expect(te.external_reference).to have_attributes({ service: 'example.com' })
   end
+
+  it 'Create blank TimeEntry' do
+    te = factory.time_entry(nil)
+    expect(te.id).to be_nil
+    expect(te.user.id).to be_nil
+    expect(te.user_assignment.id).to be_nil
+    expect(te.client.id).to be_nil
+    expect(te.project.id).to be_nil
+    expect(te.task.id).to be_nil
+    expect(te.task_assignment.id).to be_nil
+    expect(te.external_reference.service).to be_nil
+  end
+
+  it 'Create blank ProjectAssignment' do
+    te = factory.project_assignment(nil)
+  end
 end

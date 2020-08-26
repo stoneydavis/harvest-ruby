@@ -13,61 +13,102 @@ module Harvest
   # Conversion for hash to Struct including nested items.
   class ResourceFactory
     def project_assignment(data)
-      d = Harvest::ProjectAssignment.new(data)
-      d.project = project(d.project)
-      d.task_assignments = d.task_assignments.map { |ta| task_assignment(ta) }
-      d.client = client(d.client)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(convert_project_client(convert_task_assignments(Harvest::ProjectAssignment.new(data)))) unless data.nil?
     end
 
     def project(data)
-      d = Harvest::Project.new(data)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(Harvest::Project.new(data)) unless data.nil?
     end
 
     def client(data)
-      d = Harvest::ResourceClient.new(data)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(Harvest::ResourceClient.new(data)) unless data.nil?
     end
 
     def task_assignment(data)
-      d = Harvest::TaskAssignment.new(data)
-      # task may not be present in TaskAssignment's from TimeEntry
-      d.task = task(d.task) unless d.task.nil?
-      convert_dates(d)
+      data ||= {}
+      convert_dates(convert_task(Harvest::TaskAssignment.new(data))) unless data.nil?
     end
 
     def task(data)
-      d = Harvest::Task.new(data)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(Harvest::Task.new(data)) unless data.nil?
     end
 
     def user(data)
-      d = Harvest::User.new(data)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(Harvest::User.new(data)) unless data.nil?
     end
 
     def user_assignment(data)
-      d = Harvest::UserAssignment.new(data)
-      convert_dates(d)
+      data ||= {}
+      convert_dates(Harvest::UserAssignment.new(data)) unless data.nil?
     end
 
     def time_entry_external_reference(data)
+      data ||= {}
       Harvest::TimeEntryExternalReference.new(data)
     end
 
     def time_entry(data)
-      d = Harvest::TimeEntry.new(data)
-      d.user = user(d.user)
-      d.task_assignment = task_assignment(d.task_assignment)
-      d.task = task(d.task)
-      d.user_assignment = user_assignment(d.user_assignment)
-      d = convert_project_client(d)
-      d.external_reference = time_entry_external_reference(d.external_reference)
-      convert_dates(d)
+      data ||= {}
+      unless data.nil?
+        convert_dates(
+          convert_project_client(
+            convert_task_assignment(
+              convert_task(
+                convert_user_assignment(
+                  convert_user(
+                    convert_external_reference(
+                      Harvest::TimeEntry.new(data)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      end
     end
 
     private
+
+    def convert_external_reference(data)
+      data.external_reference = time_entry_external_reference(data.external_reference)
+      data
+    end
+
+    def convert_user(data)
+      data.user ||= {}
+      data.user = user(data.user) unless data.nil?
+      data
+    end
+
+    def convert_user_assignment(data)
+      data.user_assignment ||= {}
+      data.user_assignment = user_assignment(data.user_assignment) unless data.nil?
+      data
+    end
+
+    def convert_task_assignment(data)
+      data.task_assignment ||= {}
+
+      data.task_assignment = task_assignment(data.task_assignment) unless data.task_assignment.nil?
+      data
+    end
+
+    def convert_task_assignments(data)
+      data.task_assignments = data.task_assignments.map { |ta| task_assignment(ta) } unless data.task_assignments.nil?
+      data
+    end
+
+    def convert_task(data)
+      data.task ||= {}
+      data.task = task(data.task) unless data.task.nil?
+      data
+    end
 
     def convert_project_client(data)
       data.project = project(data.project)

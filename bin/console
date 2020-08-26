@@ -51,7 +51,8 @@ def yesterday_beginning_of_day
   Date.today.yesterday.to_datetime
 end
 
-today_te = harvest.time_entry.select(from: Date.today.yesterday.to_s) {|te| te if te.created_at > today }.time_entries
-yesterday_te = harvest.time_entry.select(from: Date.today.yesterday.to_s) {|te| te if te.created_at > yesterday_beginning_of_day && te.created_at < today }
+# harvest_time_entry = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
+# today_te = harvest_time_entry.select {|te| te.created_at > today }
+# yesterday_te = harvest_time_entry.select {|te| te.created_at > yesterday_beginning_of_day && te.created_at < today }
 
 binding.pry
