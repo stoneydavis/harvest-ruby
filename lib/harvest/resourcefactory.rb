@@ -6,6 +6,71 @@ module Harvest
   # Conversion for hash to Struct including nested items.
   # TODO: Refactor for figuring out what Struct should be used
   class ResourceFactory
+    def message_recipient(data)
+      data ||= {}
+      Harvest::MessageRecipient.new(data)
+    end
+
+    def company(data)
+      data ||= {}
+      Harvest::Company.new(data)
+    end
+
+    def estimate(data)
+      data ||= {}
+      Harvest::Estimate.new(data)
+    end
+
+    def estimate_line_item(data)
+      data ||= {}
+      Harvest::EstimateLineItem.new(data)
+    end
+
+    def estimate_message(data)
+      data ||= {}
+      Harvest::EstimateMessage.new(data)
+    end
+
+    def estimate_item_category(data)
+      data ||= {}
+      Harvest::EstimateItemCategory.new(data)
+    end
+
+    def expense_category(data)
+      data ||= {}
+      Harvest::ExpenseCategory.new(data)
+    end
+
+    def expense(data)
+      data ||= {}
+      Harvest::Expense.new(data)
+    end
+
+    def invoice(data)
+      data ||= {}
+      Harvest::Invoice.new(data)
+    end
+
+    def invoice_line_item(data)
+      data ||= {}
+      Harvest::InvoiceLineItem.new(data)
+    end
+
+    def invoice_message(data)
+      data ||= {}
+      Harvest::InvoiceMessage.new(data)
+    end
+
+    def invoice_payment(data)
+      data ||= {}
+      Harvest::InvoicePayment.new(data)
+    end
+
+    def invoice_item_category(data)
+      data ||= {}
+      Harvest::InvoiceItemCategory.new(data)
+    end
+
     def project_assignment(data)
       data ||= {}
       convert_dates(convert_project_client(convert_task_assignments(Harvest::ProjectAssignment.new(data)))) unless data.nil?
