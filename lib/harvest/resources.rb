@@ -1,13 +1,18 @@
 # frozen_string_literal: true
 
+require 'harvest/resources/message'
+require 'Hharvest/resources/company'
+require 'harvest/resources/user'
+require 'harvest/resources/task_assignment'
+require 'harvest/resources/user_assignment'
+require 'harvest/resources/timeentry'
+require 'harvest/resources/estimates'
 require 'harvest/resources/client'
+require 'harvest/resources/expenses'
+require 'harvest/resources/task'
 require 'harvest/resources/project'
 require 'harvest/resources/project_assignment'
-require 'harvest/resources/task'
-require 'harvest/resources/task_assignment'
-require 'harvest/resources/timeentry'
-require 'harvest/resources/user'
-require 'harvest/resources/user_assignment'
+require 'harvest/resources/invoices'
 
 module Harvest
   # Conversion for hash to Struct including nested items.
