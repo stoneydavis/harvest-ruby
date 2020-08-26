@@ -85,4 +85,12 @@ module Harvest
     :updated_at,
     keyword_init: true
   )
+
+  TimeEntryExternalReference = Struct.new(
+    :id,
+    :group_id,
+    :permalink,
+    :service,
+    :service_icon_url
+  )
 end

@@ -45,9 +45,26 @@ module Harvest
       convert_dates(d)
     end
 
+    def user_assignment(data)
+      d = Harvest::UserAssignment.new(data)
+      convert_dates(d)
+    end
+
+    def time_entry_external_reference(data)
+      d = Harvest::TimeEntryExternalReference.new(data)
+      convert_dates(d)
+    end
+
     def time_entry(data)
       # binding.pry
       d = Harvest::TimeEntry.new(data)
+      d.user = user(d.user)
+      d.task_assignment = task_assignment(d.task_assignment)
+      d.task = task(d.task)
+      d.user_assignment = user_assignment(d.user_assignment)
+      d.project = project(d.project)
+      d.client = client(d.client)
+      d.external_reference = time_entry_external_reference(d.external_reference)
       convert_dates(d)
     end
 
