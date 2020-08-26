@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'harvest/resources/message'
-require 'Hharvest/resources/company'
+require 'harvest/resources/company'
 require 'harvest/resources/user'
 require 'harvest/resources/task_assignment'
 require 'harvest/resources/user_assignment'

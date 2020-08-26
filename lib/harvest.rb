@@ -7,6 +7,8 @@ require 'rest-client'
 require 'harvest/version'
 require 'harvest/resourcefactory'
 require 'harvest/httpclient'
+require 'harvest/exceptions'
+require 'harvest/clientmixin'
 
 def convert_to_sym(data)
   return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
@@ -17,14 +19,9 @@ def convert_to_sym(data)
 end
 
 module Harvest
-  class Error < StandardError; end
-  class BadState < Error; end
-  class ProjectError < Error; end
-  class TooManyProjects < ProjectError; end
-  class NoProjectsFound < ProjectError; end
-
   # Harvest client interface
   class Client
+    include HarvestClientMixin
     attr_reader :active_user, :client, :time_entries, :factory
     attr_accessor :state
 
@@ -42,41 +39,6 @@ module Harvest
       @factory = Harvest::ResourceFactory.new
       @state = ''
       @active_user = @factory.user(@client.api_call('/users/me'))
-    end
-
-    # Change context to projects
-    def projects
-      change_context('projects')
-    end
-
-    # Change context to time_entry
-    def time_entry
-      case @state
-      when 'project_tasks'
-        raise NoProjectTasks if @tasks.length.zero?
-
-        raise TooManyTasks if @tasks.length > 1
-
-        change_context('time_entry')
-      when ''
-        change_context('time_entry')
-      end
-    end
-
-    # Find task assignments for a project
-    def tasks
-      case @state
-      when 'projects'
-        raise TooManyProjects if @projects.length > 1
-
-        raise NoProjectsFound if @projects.length.zero?
-
-        raise ProjectError('No Task Assignments found') unless @projects[0].task_assignments
-
-        change_context('project_tasks')
-      when ''
-        raise BadState 'Requires a state to call this method'
-      end
     end
 
     # Find single instance of resource
@@ -165,14 +127,6 @@ module Harvest
     end
 
     # @api private
-    def select_projects
-    end
-
-    # @api private
-    def select_project_tasks
-    end
-
-    # @api private
     # All Projects
     def admin_projects
       @client.api_call('projects')['projects']
@@ -194,13 +148,6 @@ module Harvest
         .map do |project|
           @factory.project_assignment(project)
         end
-    end
-
-    # @api private
-    def change_context(new_state)
-      n = self.dup
-      n.state = new_state
-      n
     end
   end
 end
