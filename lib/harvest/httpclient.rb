@@ -58,5 +58,16 @@ module Harvest
       )
     end
 
+    private
+
+    # @api private
+    def headers(personal_token, account_id)
+      {
+        'User-Agent' => 'Ruby Harvest API Sample',
+        'Authorization' => "Bearer #{personal_token}",
+        'Harvest-Account-ID' => account_id
+      }
+    end
+
   end
 end

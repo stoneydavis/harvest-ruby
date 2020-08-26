@@ -121,7 +121,6 @@ module Harvest
       when ''
         raise BadState 'Requires a state to call this method'
       end
-      self
     end
 
     # Create an instance of object based on state
@@ -182,7 +181,7 @@ module Harvest
     # @api private
     # Time Entries
     def select_time_entries(**params)
-      pagination('time_entries', 'time_entries', param: params).map do |time_entry|
+      @client.pagination('time_entries', 'time_entries', param: params).map do |time_entry|
         @factory.time_entry(time_entry)
       end
     end
@@ -201,15 +200,6 @@ module Harvest
       n = self.dup
       n.state = new_state
       n
-    end
-
-    # @api private
-    def headers(personal_token, account_id)
-      {
-        'User-Agent' => 'Ruby Harvest API Sample',
-        'Authorization' => "Bearer #{personal_token}",
-        'Harvest-Account-ID' => account_id
-      }
     end
   end
 end
