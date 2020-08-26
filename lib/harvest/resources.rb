@@ -7,6 +7,7 @@ require 'harvest/resources/task'
 require 'harvest/resources/task_assignment'
 require 'harvest/resources/timeentry'
 require 'harvest/resources/user'
+require 'harvest/resources/user_assignment'
 
 module Harvest
   # Conversion for hash to Struct including nested items.
@@ -31,13 +32,14 @@ module Harvest
 
     def task_assignment(data)
       d = Harvest::TaskAssignment.new(data)
-      d.task = task(d.task)
+      # task may not be present in TaskAssignment's from TimeEntry
+      d.task = task(d.task) unless d.task.nil?
       convert_dates(d)
     end
 
     def task(data)
       d = Harvest::Task.new(data)
-      d
+      convert_dates(d)
     end
 
     def user(data)
@@ -51,24 +53,27 @@ module Harvest
     end
 
     def time_entry_external_reference(data)
-      d = Harvest::TimeEntryExternalReference.new(data)
-      convert_dates(d)
+      Harvest::TimeEntryExternalReference.new(data)
     end
 
     def time_entry(data)
-      # binding.pry
       d = Harvest::TimeEntry.new(data)
       d.user = user(d.user)
       d.task_assignment = task_assignment(d.task_assignment)
       d.task = task(d.task)
       d.user_assignment = user_assignment(d.user_assignment)
-      d.project = project(d.project)
-      d.client = client(d.client)
+      d = convert_project_client(d)
       d.external_reference = time_entry_external_reference(d.external_reference)
       convert_dates(d)
     end
 
     private
+
+    def convert_project_client(data)
+      data.project = project(data.project)
+      data.client = client(data.client)
+      data
+    end
 
     def convert_dates(data)
       data.created_at = DateTime.strptime(data.created_at) unless data.created_at.nil?

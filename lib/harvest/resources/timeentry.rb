@@ -91,6 +91,7 @@ module Harvest
     :group_id,
     :permalink,
     :service,
-    :service_icon_url
+    :service_icon_url,
+    keyword_init: true
   )
 end

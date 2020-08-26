@@ -2,9 +2,13 @@
 
 module Harvest
   # @param id [integer]
-  #   Unique ID for the project assignment.
+  #   Unique ID for the user assignment.
+  # @param project [object]
+  #   An object containing the id, name, and code of the associated project.
+  # @param user [object]
+  #   An object containing the id and name of the associated user.
   # @param is_active [boolean]
-  #   Whether the project assignment is active or archived.
+  #   Whether the user assignment is active or archived.
   # @param is_project_manager [boolean]
   #   Determines if the user has Project Manager permissions for the project.
   # @param use_default_rates [boolean]
@@ -14,27 +18,20 @@ module Harvest
   # @param budget [decimal]
   #   Budget used when the project’s budget_by is person.
   # @param created_at [datetime]
-  #   Date and time the project assignment was created.
+  #   Date and time the user assignment was created.
   # @param updated_at [datetime]
-  #   Date and time the project assignment was last updated.
-  # @param project [object]
-  #   An object containing the assigned project id, name, and code.
-  # @param client [object]
-  #   An object containing the project’s client id and name.
-  # @param task_assignments [array]
-  #   Array of task assignment objects associated with the project.
-  ProjectAssignment = Struct.new(
+  #   Date and time the user assignment was last updated.
+  UserAssignment = Struct.new(
     :id,
-    :is_project_manager,
+    :project,
+    :user,
     :is_active,
+    :is_project_manager,
     :use_default_rates,
+    :hourly_rate,
     :budget,
     :created_at,
     :updated_at,
-    :hourly_rate,
-    :project,
-    :client,
-    :task_assignments,
     keyword_init: true
   )
 end
