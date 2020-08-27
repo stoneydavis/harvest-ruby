@@ -209,5 +209,14 @@ RSpec.describe Harvest::ResourceFactory do
 
   let(:blank_pa) { factory.project_assignment(nil) }
   context 'when creating blank project assignment struct' do
+    it 'sets id nil' do
+      expect(blank_pa.id.nil?).to eq(true)
+    end
+    it 'sets project id nil' do
+      expect(blank_pa.project.id.nil?).to eq(true)
+    end
+    it 'sets client id nil' do
+      expect(blank_pa.client.id.nil?).to eq(true)
+    end
   end
 end

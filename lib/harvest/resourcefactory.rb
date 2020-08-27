@@ -6,10 +6,14 @@ require 'harvest/resources'
 module Harvest
   # Conversion for hash to Struct including nested items.
   # TODO: Refactor for figuring out what Struct should be used
+  class NoValidStruct <ArgumentError
+  end
+
   class ResourceFactory
-    def factory(data)
-      data ||= {}
-    end
+    # def factory(data)
+    #   # I don't care what data is other than that Struct will accept it.
+    #   data ||= {}
+    # end
 
     def message_recipient(data)
       data ||= {}
@@ -118,23 +122,21 @@ module Harvest
 
     def time_entry(data)
       data ||= {}
-      unless data.nil?
-        convert_dates(
-          convert_project_client(
-            convert_task_assignment(
-              convert_task(
-                convert_user_assignment(
-                  convert_user(
-                    convert_external_reference(
-                      Harvest::TimeEntry.new(data)
-                    )
+      convert_dates(
+        convert_project_client(
+          convert_task_assignment(
+            convert_task(
+              convert_user_assignment(
+                convert_user(
+                  convert_external_reference(
+                    Harvest::TimeEntry.new(data)
                   )
                 )
               )
             )
           )
         )
-      end
+      )
     end
 
     private
@@ -195,8 +197,7 @@ module Harvest
     end
 
     def convert_dates(data)
-      # binding.pry
-      %w[created_at updated_at sent_at accepted_at declined_at].each do |key|
+      %i[created_at updated_at sent_at accepted_at declined_at].each do |key|
         if data.members.include?(key) && !data.method(key).call.nil?
           data.method("#{key}=").call(DateTime.strptime(data.method(key).call))
         end
