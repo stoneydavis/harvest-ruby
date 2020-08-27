@@ -15,3 +15,5 @@ gem "configparser", "~> 0.1.7"
 gem "rubocop", "~> 0.89.1"
 
 gem "activesupport", "~> 6.0"
+
+gem "reek", "~> 6.0"
