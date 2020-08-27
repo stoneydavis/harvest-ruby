@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
+require 'pry'
 require 'harvest/resources'
 
 module Harvest
   # Conversion for hash to Struct including nested items.
   # TODO: Refactor for figuring out what Struct should be used
   class ResourceFactory
+    def factory(data)
+      data ||= {}
+    end
+
     def message_recipient(data)
       data ||= {}
       Harvest::MessageRecipient.new(data)
@@ -18,7 +23,7 @@ module Harvest
 
     def estimate(data)
       data ||= {}
-      Harvest::Estimate.new(data)
+      convert_estimate_line_items(convert_client(Harvest::Estimate.new(data)))
     end
 
     def estimate_line_item(data)
@@ -134,6 +139,11 @@ module Harvest
 
     private
 
+    def convert_estimate_line_items(data)
+      data.line_items = data.line_items.map { |ta| estimate_line_item(ta) } unless data.line_items.nil?
+      data
+    end
+
     def convert_external_reference(data)
       data.external_reference = time_entry_external_reference(data.external_reference)
       data
@@ -169,15 +179,28 @@ module Harvest
       data
     end
 
-    def convert_project_client(data)
-      data.project = project(data.project)
+    # @param data [Struct] passed a struct which contains an attribute client
+    def convert_client(data)
       data.client = client(data.client)
       data
     end
 
+    def convert_project(data)
+      data.project = project(data.project)
+      data
+    end
+
+    def convert_project_client(data)
+      convert_project(convert_client(data))
+    end
+
     def convert_dates(data)
-      data.created_at = DateTime.strptime(data.created_at) unless data.created_at.nil?
-      data.updated_at = DateTime.strptime(data.updated_at) unless data.updated_at.nil?
+      # binding.pry
+      %w[created_at updated_at sent_at accepted_at declined_at].each do |key|
+        if data.members.include?(key) && !data.method(key).call.nil?
+          data.method("#{key}=").call(DateTime.strptime(data.method(key).call))
+        end
+      end
       data
     end
   end
