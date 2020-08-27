@@ -50,17 +50,46 @@ RSpec.describe Harvest::ResourceFactory do
       }
     ]
   }
-  # tests ProjectAssignment, Client, Project, TaskAssignment, Tasks, converting dates
-  it 'create project assignment struct with nested Client, Project, TaskAssignment, Tasks and formatted dates' do
-    pa = factory.project_assignment(project_assignment_raw)
-    expect(pa).to have_attributes({ is_active: true, id: 123456789 })
-    expect(pa.project).to have_attributes({ name: 'Customer Name', code: '16393' })
-    expect(pa.client).to have_attributes({ name: 'Customer Name', currency: 'USD' })
-    expect(pa.created_at).to be_instance_of(DateTime)
-    expect(pa.updated_at).to be_instance_of(DateTime)
-    expect(pa.task_assignments.length).to eq(2)
-    expect(pa.task_assignments[0]).to have_attributes({ is_active: true, id: 987_654_321 })
-    expect(pa.task_assignments[0].task).to have_attributes({ id: 11_299_508 })
+
+  let(:pa) { factory.project_assignment(project_assignment_raw) }
+
+  context 'when creating project assignment struct' do
+    it 'sets project assignment id' do
+      expect(pa.id).to eq(123_456_789)
+    end
+    it 'sets is_active' do
+      expect(pa.is_active).to eq(true)
+    end
+    it 'sets project name' do
+      expect(pa.project.name).to eq('Customer Name')
+    end
+    it 'sets project code' do
+      expect(pa.project.code).to eq('16393')
+    end
+    it 'sets created_at' do
+      expect(pa.created_at).to be_instance_of(DateTime)
+    end
+    it 'sets updated_at' do
+      expect(pa.updated_at).to be_instance_of(DateTime)
+    end
+    it 'sets client name' do
+      expect(pa.client.name).to eq('Customer Name')
+    end
+    it 'sets client currency' do
+      expect(pa.client.currency).to eq('USD')
+    end
+    it 'has task assignments' do
+      expect(pa.task_assignments.length).to eq(2)
+    end
+    it 'sets task assignment is_active' do
+      expect(pa.task_assignments[0].is_active).to eq(true)
+    end
+    it 'sets task assignment id' do
+      expect(pa.task_assignments[0].id).to eq(987_654_321)
+    end
+    it 'sets task assignment task id' do
+      expect(pa.task_assignments[0].task.id).to eq(11_299_508)
+    end
   end
 
   time_entry_raw = {
@@ -129,28 +158,56 @@ RSpec.describe Harvest::ResourceFactory do
     created_at: '2020-08-14T22:32:40Z',
     updated_at: '2020-08-14T22:32:57Z'
   }
-  it 'Create TimeEntry with the following nested object: Project, Client, TaskAssignment, Task, ExternalReference, UserAssignment, User' do
-    te = factory.time_entry(time_entry_raw)
-    expect(te.project).to have_attributes({ name: 'Project Name' })
-    expect(te.client).to have_attributes({ name: 'Client Name' })
-    expect(te.task).to have_attributes({ name: 'Ops' })
-    expect(te.task_assignment).to have_attributes({ id: 175684707 })
-    expect(te.external_reference).to have_attributes({ service: 'example.com' })
+  let(:te) { factory.time_entry(time_entry_raw) }
+
+  context 'when creating time entry struct' do
+    it 'sets project name' do
+      expect(te.project.name).to eq('Project Name')
+    end
+    it 'sets client name' do
+      expect(te.client.name).to eq('Client Name')
+    end
+    it 'sets task name' do
+      expect(te.task.name).to eq('Ops')
+    end
+    it 'sets task assignment id' do
+      expect(te.task_assignment.id).to eq(175684707)
+    end
+    it 'sets external_reference service' do
+      expect(te.external_reference.service).to eq('example.com')
+    end
   end
 
-  it 'Create blank TimeEntry' do
-    te = factory.time_entry(nil)
-    expect(te.id).to be_nil
-    expect(te.user.id).to be_nil
-    expect(te.user_assignment.id).to be_nil
-    expect(te.client.id).to be_nil
-    expect(te.project.id).to be_nil
-    expect(te.task.id).to be_nil
-    expect(te.task_assignment.id).to be_nil
-    expect(te.external_reference.service).to be_nil
+  let(:blank_te) { factory.time_entry(nil) }
+
+  context 'when creating blank time entry struct' do
+    it 'sets id nil' do
+      expect(blank_te.id.nil?).to eq(true)
+    end
+    it 'sets user.id nil' do
+      expect(blank_te.user.id.nil?).to eq(true)
+    end
+    it 'sets user assignment id nil' do
+      expect(blank_te.user_assignment.id.nil?).to eq(true)
+    end
+    it 'sets client id nil' do
+      expect(blank_te.client.id.nil?).to eq(true)
+    end
+    it 'sets project id' do
+      expect(blank_te.project.id.nil?).to eq(true)
+    end
+    it 'sets task id' do
+      expect(blank_te.task.id.nil?).to eq(true)
+    end
+    it 'sets task assignment id' do
+      expect(blank_te.task_assignment.id.nil?).to eq(true)
+    end
+    it 'sets external reference service' do
+      expect(blank_te.external_reference.service.nil?).to eq(true)
+    end
   end
 
-  it 'Create blank ProjectAssignment' do
-    te = factory.project_assignment(nil)
+  let(:blank_pa) { factory.project_assignment(nil) }
+  context 'when creating blank project assignment struct' do
   end
 end
