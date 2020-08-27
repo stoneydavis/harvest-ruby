@@ -30,7 +30,7 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false)
-      @client = Harvest::HTTPClient.new(
+      @client = Harvest::HTTP::Client.new(
         domain: domain,
         account_id: account_id,
         personal_token: personal_token
@@ -136,7 +136,11 @@ module Harvest
     # @api private
     # Time Entries
     def select_time_entries(**params)
-      @client.pagination('time_entries', 'time_entries', param: params).map do |time_entry|
+      paginator = @client.paginator
+      paginator.path = 'time_entries'
+      paginator.data_key = 'time_entries'
+      paginator.param = params
+      @client.pagination(paginator).map do |time_entry|
         @factory.time_entry(time_entry)
       end
     end
