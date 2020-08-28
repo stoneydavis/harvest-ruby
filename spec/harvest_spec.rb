@@ -29,8 +29,14 @@ RSpec.describe Harvest do
     it 'sets active_user' do
       expect(harvest.active_user.id).to be(123_456_789_012)
     end
+
+    # Once the discover test is implemented I should be able to remove this entirely
     it 'sets project state' do
-      expect(harvest.projects.state[:default]).to eq(:projects)
+      expect(harvest.projects.instance_variable_get("@state")[:default]).to eq(:projects)
+    end
+
+    xit 'discovers projects' do
+      expect(harvest.projects.discover).to eq('')
     end
   end
 end

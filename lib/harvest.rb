@@ -23,7 +23,6 @@ module Harvest
   class Client
     # include HarvestClientContextMixin
     attr_reader :active_user, :client, :time_entries, :factory
-    attr_accessor :state
 
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
     # @param account_id [Integer] Harvest Account id
