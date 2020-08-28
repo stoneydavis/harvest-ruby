@@ -17,7 +17,7 @@ module Harvest
         struct.headers['params'] = struct.param
         case struct.http_method
         when 'get'
-          http_resp = @client[struct.path].get(headers)
+          http_resp = @client[struct.path].get(struct.headers)
           JSON.parse(http_resp)
         when 'post'
           @client[struct.path].post(struct.payload, struct.headers)
@@ -29,11 +29,11 @@ module Harvest
       # @api public
       # @param struct [Harvest::Pagination]
       def pagination(struct)
-        struct.param[:page] = page_count
+        struct.param[:page] = struct.page_count
         page = api_call(struct.to_api_call)
-        struct.entries.concat(page[data_key])
+        struct.entries.concat(page[struct.data_key])
 
-        return entries if page_count >= page['total_pages']
+        return struct.entries if struct.page_count >= page['total_pages']
 
         struct.page_count += 1
         pagination(struct)
@@ -102,7 +102,7 @@ module Harvest
       keyword_init: true
     ) do
       def to_api_call
-        Harvest::ApiCall.new(
+        ApiCall.new(
           {
             path: path,
             http_method: http_method,

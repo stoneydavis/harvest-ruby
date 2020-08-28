@@ -21,7 +21,7 @@ end
 module Harvest
   # Harvest client interface
   class Client
-    include HarvestClientContextMixin
+    # include HarvestClientContextMixin
     attr_reader :active_user, :client, :time_entries, :factory
     attr_accessor :state
 
@@ -29,43 +29,51 @@ module Harvest
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
-    def initialize(domain:, account_id:, personal_token:, admin_api: false)
-      @client = Harvest::HTTP::Client.new(
-        domain: domain,
-        account_id: account_id,
-        personal_token: personal_token
-      )
+    def initialize(client, admin_api: false, state: { default: 'values' })
+      @client = client
       @admin_api = admin_api
       @factory = Harvest::ResourceFactory.new
-      @state = ''
-      @active_user = @factory.user(@client.api_call('/users/me'))
+      @state = state
+      @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
     end
+
+    def method_missing(m, *args)
+      super
+    rescue NoMethodError
+      # binding.pry
+      Harvest::Client.new(
+        @client,
+        admin_api: @admin_api,
+        state: @state.merge(m => args.first ? !args.first.nil? : [], default: m)
+      )
+    end
+
 
     # Find single instance of resource
     def find(id:)
       # binding.pry
-      case @state
-      when 'projects'
-        @projects = [@factory.project(@client.api_call("projects/#{id}"))]
+      case @state[:default]
+      when :projects
+        @state[@state[:default]] = [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
         self
       end
     end
 
     # Discover resources
     def discover(**params)
-      case @state
-      when 'projects'
+      # binding.pry
+      case @state[:default]
+      when :projects
         if @admin_api && @active_user.is_admin
-          @projects = admin_projects
+          @state[@state[:default]] = admin_projects
         else
-          @projects = project_assignments
+          @state[@state[:default]] = project_assignments
         end
-      when 'project_tasks'
-        @tasks = @projects[0]
-                 .task_assignments
-      when 'time_entry'
-        @time_entries = select_time_entries(**params)
-      when ''
+      when :project_tasks
+        @state[@state[:default]] = @stat[:projects][0].task_assignments
+      when :time_entry
+        @state[@state[:default]] = select_time_entries(**params)
+      else
         raise BadState 'Requires a state to call this method'
       end
       self
@@ -73,31 +81,24 @@ module Harvest
 
     # Select a subset of all items depending on state
     def select(&block)
-      case @state
-      when 'projects'
-        @projects.select(&block)
-      when 'project_tasks'
-        @tasks.select(&block)
-      when 'time_entry'
-        @time_entries.select(&block)
-      when ''
-        raise BadState 'Requires a state to call this method'
-      end
+      @state[@state[:default]].select(&block)
     end
 
     # Create an instance of object based on state
     def create(**kwargs)
       case @state
-      when 'time_entry'
+      when :time_entry
         # required_keys = %i[spent_date]
         # TODO: check if keys required are present and raise if not
         payload = time_entry_payload(kwargs)
         begin
           @client.api_call(
-            'time_entries',
-            http_method: 'post',
-            payload: payload.to_json,
-            headers: { content_type: 'application/json' }
+            @client.api_caller(
+              'time_entries',
+              http_method: 'post',
+              payload: payload.to_json,
+              headers: { content_type: 'application/json' }
+            )
           )
         rescue RestClient::UnprocessableEntity => e
           puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
@@ -129,7 +130,10 @@ module Harvest
     # @api private
     # All Projects
     def admin_projects
-      @client.api_call('projects')['projects']
+      @client
+        .api_call(
+          @client.api_caller('projects')
+        )['projects']
         .map { |project| @factor.project(project) }
     end
 
@@ -148,7 +152,12 @@ module Harvest
     # @api private
     # Projects assigned to the specified user_id
     def project_assignments(user_id: active_user.id)
-      convert_to_sym(@client.api_call("users/#{user_id}/project_assignments")['project_assignments'])
+      @client
+        .api_call(
+          @client.api_caller(
+            "users/#{user_id}/project_assignments"
+          )
+        )['project_assignments']
         .map do |project|
           @factory.project_assignment(project)
         end

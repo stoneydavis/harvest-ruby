@@ -9,8 +9,10 @@ require 'active_support/core_ext/date/calculations'
 
 configfile = File.expand_path('~/.config/start-harvest.conf')
 config = ConfigParser.new(configfile).map { |k, v| [k, convert_to_sym(v)] }.to_h
-harvest = Harvest::Client.new(**config['harvest'])
+# binding.pry
 
+harvest = Harvest::Client.new(Harvest::HTTP::Client.new(**config['harvest']))
+# binding.pry
 puts "Active user is #{harvest.active_user.first_name} #{harvest.active_user.last_name}"
 
 if harvest.active_user.is_admin
@@ -20,6 +22,7 @@ else
 end
 
 # project_assignments = harvest.project_assignments
+# binding.pry
 
 have_filtered_project_assignments = harvest
                                     .projects
