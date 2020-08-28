@@ -8,11 +8,18 @@ RSpec.describe Harvest do
     personal_token: 'example_personal_token'
   }
 
-  xit 'create harvest client' do
-    expect(Harvest::Client.new(config))
+  xit 'create harvest http client' do
+    expect(Harvest::HTTP::Client.new(config))
   end
 
-  let(:harvest) { Harvest::Client.new(config) }
+  # TODO: create double of Harvest::HTTP::Client
+  let(:client) { Harvest::HTTP::Client.new(config) }
+
+  xit 'create harvest client' do
+    expect(Harvest::Client.new(client))
+  end
+
+  let(:harvest) { Harvest::Client.new(client) }
   context 'harvest client' do
     xit 'sets active_user' do
       expect(harvest.active_user.id).to be(123_456_789_012)
