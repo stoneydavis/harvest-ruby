@@ -14,29 +14,51 @@ RSpec.describe Harvest do
     }
   end
 
-  xit 'create harvest http client' do
+  it 'create harvest http client' do
     expect(Harvest::HTTP::Client.new(config))
   end
 
-  let(:client) { instance_double(Harvest::HTTP::Client, api_caller: Harvest::HTTP::ApiCall.new, paginator: Harvest::HTTP::Pagination.new, api_call: {id: 123_456_789_012}, pagination: {}) }
 
-  let(:harvest) { Harvest::Client.new(client) }
-  context 'harvest client' do
-    it 'create harvest client' do
-      expect(Harvest::Client.new(client))
-    end
+  describe Harvest::Client do
+    context 'when called' do
+      before (:each) do
+        @client = Harvest::HTTP::Client.new(config)
+        @me_user = Harvest::HTTP::ApiCall.new(path: '/users/me', http_method: 'get', headers: {}, param: {})
+        @projects = Harvest::HTTP::ApiCall.new(path: 'projects/1123456', http_method: 'get', headers: {}, param: {})
+        allow(@client)
+          .to receive(:api_call)
+          .with(@me_user)
+          .and_return({id: 789456, first_name: 'Bob', last_name: 'Smith' })
+        allow(@client)
+          .to receive(:api_caller)
+          .with('/users/me')
+          .and_return(@me_user)
+        allow(@client)
+          .to receive(:api_caller)
+          .with('projects/1123456')
+          .and_return(@projects)
+        allow(@client)
+          .to receive(:api_call)
+          .with(@projects)
+          .and_return({id: 1123456})
+        # I need to add 2 additional items for every api call, one to
+        # generate the struct from api_caller that is then recieved by api_call.
+        # I now need to do a user project assignment one now and it will only 
+        # grow from here
+      end
 
-    it 'sets active_user' do
-      expect(harvest.active_user.id).to be(123_456_789_012)
-    end
-
-    # Once the discover test is implemented I should be able to remove this entirely
-    it 'sets project state' do
-      expect(harvest.projects.instance_variable_get("@state")[:default]).to eq(:projects)
-    end
-
-    xit 'discovers projects' do
-      expect(harvest.projects.discover).to eq('')
+      it 'creates Client, sets active user' do
+        harvest = Harvest::Client.new(@client)
+        expect(harvest.active_user.id).to be(789456)
+      end
+      xit 'discover projects' do
+        harvest = Harvest::Client.new(@client)
+        expect(harvest.projects.discover).to eq('')
+      end
+      xit 'find one project' do
+        harvest = Harvest::Client.new(@client)
+        expect(harvest.projects.find(id: 1123456)).to eq('')
+      end
     end
   end
 end
