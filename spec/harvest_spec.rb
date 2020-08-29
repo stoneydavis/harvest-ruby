@@ -41,10 +41,16 @@ RSpec.describe Harvest do
           .to receive(:api_call)
           .with(@projects)
           .and_return({id: 1123456})
-        # I need to add 2 additional items for every api call, one to
-        # generate the struct from api_caller that is then recieved by api_call.
-        # I now need to do a user project assignment one now and it will only 
-        # grow from here
+        # harvest.projects.discover makes an api call to
+        # users/#{user.id}/project_assignments
+        # In order to make this I create an Struct containing the
+        # information needed for api_call from api_caller.
+        # api_caller() creates a struct with default values.
+        # api_call accepts the above struct and makes a request. 
+        # Now I haven't been able to figure out a way to allow it to
+        # execute that function without overriding it, which would make
+        # this process easier as I wouldn't need to add 2 additional
+        # allow's for each api call the Harvest::Client makes.
       end
 
       it 'creates Client, sets active user' do
