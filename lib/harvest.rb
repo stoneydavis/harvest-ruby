@@ -28,23 +28,37 @@ module Harvest
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
-    def initialize(client, admin_api: false, state: { default: 'values' })
-      @client = client
+    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { default: 'values' })
+      @config = {domain: domain, account_id: account_id, personal_token: personal_token}
+      @client = Harvest::HTTP::Api.new(@config)
       @admin_api = admin_api
       @factory = Harvest::ResourceFactory.new
       @state = state
       @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
     end
 
+    def allowed?(m)
+      %i[
+        projects
+        project_tasks
+        time_entry
+      ].include?(m)
+    end
+
     def method_missing(m, *args)
-      super
+      if allowed?(m)
+        Harvest::Client.new(
+          @config.merge({
+            admin_api: @admin_api,
+            state: @state.merge(m => args.first ? !args.first.nil? : [], default: m)
+          })
+        )
+      else
+
+        super
+      end
     rescue NoMethodError
       # binding.pry
-      Harvest::Client.new(
-        @client,
-        admin_api: @admin_api,
-        state: @state.merge(m => args.first ? !args.first.nil? : [], default: m)
-      )
     end
 
 

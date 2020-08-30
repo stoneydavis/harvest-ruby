@@ -3,11 +3,70 @@
 module Harvest
   module HTTP
     class Client
-      def initialize(domain:, account_id:, personal_token:, admin_api: false)
-        @client = RestClient::Resource.new(
-          domain.chomp('/') + '/api/v2',
-          { headers: headers(personal_token, account_id) }
+      def initialize(
+        state: {}  
+      )  
+        @state = state
+      end
+
+      attr_reader :state
+
+      def method_missing(m, *args)
+        if allowed?(m)
+          Client.new(
+            state: @state.merge(m => args.first),
+          )
+        else
+          super
+        end
+      end
+
+      def allowed?(m)
+        %i[
+          domain
+          headers
+          client
+        ].include?(m)
+      end
+
+      def respond_to_missing?(*)
+        super
+      end
+
+      def headers(personal_token, account_id)
+        Client.new(
+          state: @state.merge(
+            {
+              headers: {
+                'User-Agent' => 'Ruby Harvest API Sample',
+                'Authorization' => "Bearer #{personal_token}",
+                'Harvest-Account-ID' => account_id
+              }
+            }
+          )
         )
+      end
+
+      def client
+        RestClient::Resource.new(
+          "#{@state[:domain].chomp('/')}/api/v2",
+          headers: @state[:headers],
+        )
+      end
+    end
+
+    class Api
+      def initialize(domain:, account_id:, personal_token:, admin_api: false)
+        @domain = domain
+        @account_id = account_id
+        @personal_token = personal_token
+      end
+      
+      def client
+        Harvest::HTTP::Client.new
+          .domain(@domain)
+          .headers(@personal_token, @account_id)
+          .client
       end
 
       # Make a api call to an endpoint.
@@ -17,8 +76,12 @@ module Harvest
         struct.headers['params'] = struct.param
         case struct.http_method
         when 'get'
-          http_resp = @client[struct.path].get(struct.headers)
-          JSON.parse(http_resp)
+          JSON.parse(
+            client[struct.path].get(struct.headers).tap do
+              require 'pry'
+              # binding.pry
+            end
+          )
         when 'post'
           @client[struct.path].post(struct.payload, struct.headers)
         end
@@ -40,10 +103,7 @@ module Harvest
       end
 
       # Create Paginaation struct message to pass to pagination call
-      def paginator(http_method: 'get', page_count: 1, param: nil, entries: nil, headers: nil)
-        headers ||= {}
-        param ||= {}
-        entries ||= []
+      def paginator(http_method: 'get', page_count: 1, param: {}, entries: [], headers: {})
         Harvest::HTTP::Pagination.new(
           {
             http_method: http_method,
@@ -55,9 +115,7 @@ module Harvest
         )
       end
 
-      def api_caller(path, http_method: 'get', param: nil, payload: nil, headers: nil)
-        headers ||= {}
-        param ||= {}
+      def api_caller(path, http_method: 'get', param: {}, payload: nil, headers: {})
         Harvest::HTTP::ApiCall.new(
           {
             path: path,
@@ -67,17 +125,6 @@ module Harvest
             headers: headers
           }
         )
-      end
-
-      private
-
-      # @api private
-      def headers(personal_token, account_id)
-        {
-          'User-Agent' => 'Ruby Harvest API Sample',
-          'Authorization' => "Bearer #{personal_token}",
-          'Harvest-Account-ID' => account_id
-        }
       end
     end
 
