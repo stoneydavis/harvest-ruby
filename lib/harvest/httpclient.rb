@@ -62,7 +62,8 @@ module Harvest
       end
 
       def client
-        Harvest::HTTP::Client.new
+        Harvest::HTTP::Client
+          .new
           .domain(@domain)
           .headers(@personal_token, @account_id)
           .client
