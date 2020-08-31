@@ -71,7 +71,7 @@ module Harvest
 
       # Make a api call to an endpoint.
       # @api public
-      # @param struct [Harvest::ApiCall]
+      # @param struct [Struct::ApiCall]
       def api_call(struct)
         struct.headers['params'] = struct.param
         case struct.http_method
@@ -90,7 +90,7 @@ module Harvest
 
       # Pagination through request
       # @api public
-      # @param struct [Harvest::Pagination]
+      # @param struct [Struct::Pagination]
       def pagination(struct)
         struct.param[:page] = struct.page_count
         page = api_call(struct.to_api_call)
