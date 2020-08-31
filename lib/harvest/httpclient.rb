@@ -49,7 +49,7 @@ module Harvest
       def client
         RestClient::Resource.new(
           "#{@state[:domain].chomp('/')}/api/v2",
-          headers: @state[:headers],
+          headers: @state[:headers]
         )
       end
     end
@@ -60,7 +60,7 @@ module Harvest
         @account_id = account_id
         @personal_token = personal_token
       end
-      
+
       def client
         Harvest::HTTP::Client.new
           .domain(@domain)
