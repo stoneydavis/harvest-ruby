@@ -17,107 +17,107 @@ module Harvest
 
     def message_recipient(data)
       data ||= {}
-      Harvest::MessageRecipient.new(data)
+      Struct::MessageRecipient.new(data)
     end
 
     def company(data)
       data ||= {}
-      Harvest::Company.new(data)
+      Struct::Company.new(data)
     end
 
     def estimate(data)
       data ||= {}
-      convert_estimate_line_items(convert_client(Harvest::Estimate.new(data)))
+      convert_estimate_line_items(convert_client(Struct::Estimate.new(data)))
     end
 
     def estimate_line_item(data)
       data ||= {}
-      Harvest::EstimateLineItem.new(data)
+      Struct::EstimateLineItem.new(data)
     end
 
     def estimate_message(data)
       data ||= {}
-      Harvest::EstimateMessage.new(data)
+      Struct::EstimateMessage.new(data)
     end
 
     def estimate_item_category(data)
       data ||= {}
-      Harvest::EstimateItemCategory.new(data)
+      Struct::EstimateItemCategory.new(data)
     end
 
     def expense_category(data)
       data ||= {}
-      Harvest::ExpenseCategory.new(data)
+      Struct::ExpenseCategory.new(data)
     end
 
     def expense(data)
       data ||= {}
-      Harvest::Expense.new(data)
+      Struct::Expense.new(data)
     end
 
     def invoice(data)
       data ||= {}
-      Harvest::Invoice.new(data)
+      Struct::Invoice.new(data)
     end
 
     def invoice_line_item(data)
       data ||= {}
-      Harvest::InvoiceLineItem.new(data)
+      Struct::InvoiceLineItem.new(data)
     end
 
     def invoice_message(data)
       data ||= {}
-      Harvest::InvoiceMessage.new(data)
+      Struct::InvoiceMessage.new(data)
     end
 
     def invoice_payment(data)
       data ||= {}
-      Harvest::InvoicePayment.new(data)
+      Struct::InvoicePayment.new(data)
     end
 
     def invoice_item_category(data)
       data ||= {}
-      Harvest::InvoiceItemCategory.new(data)
+      Struct::InvoiceItemCategory.new(data)
     end
 
     def project_assignment(data)
       data ||= {}
-      convert_dates(convert_project_client(convert_task_assignments(Harvest::ProjectAssignment.new(data)))) unless data.nil?
+      convert_dates(convert_project_client(convert_task_assignments(Struct::ProjectAssignment.new(data)))) unless data.nil?
     end
 
     def project(data)
       data ||= {}
-      convert_dates(Harvest::Project.new(data)) unless data.nil?
+      convert_dates(Struct::Project.new(data)) unless data.nil?
     end
 
     def client(data)
       data ||= {}
-      convert_dates(Harvest::ResourceClient.new(data)) unless data.nil?
+      convert_dates(Struct::ResourceClient.new(data)) unless data.nil?
     end
 
     def task_assignment(data)
       data ||= {}
-      convert_dates(convert_task(Harvest::TaskAssignment.new(data))) unless data.nil?
+      convert_dates(convert_task(Struct::TaskAssignment.new(data))) unless data.nil?
     end
 
     def task(data)
       data ||= {}
-      convert_dates(Harvest::Task.new(data)) unless data.nil?
+      convert_dates(Struct::Task.new(data)) unless data.nil?
     end
 
     def user(data)
       data ||= {}
-      convert_dates(Harvest::User.new(data)) unless data.nil?
+      convert_dates(Struct::User.new(data)) unless data.nil?
     end
 
     def user_assignment(data)
       data ||= {}
-      convert_dates(Harvest::UserAssignment.new(data)) unless data.nil?
+      convert_dates(Struct::UserAssignment.new(data)) unless data.nil?
     end
 
     def time_entry_external_reference(data)
       data ||= {}
-      Harvest::TimeEntryExternalReference.new(data)
+      Struct::TimeEntryExternalReference.new(data)
     end
 
     def time_entry(data)
@@ -129,7 +129,7 @@ module Harvest
               convert_user_assignment(
                 convert_user(
                   convert_external_reference(
-                    Harvest::TimeEntry.new(data)
+                    Struct::TimeEntry.new(data)
                   )
                 )
               )

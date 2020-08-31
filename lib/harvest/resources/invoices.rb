@@ -67,7 +67,8 @@ module Harvest
   #   Date and time the invoice was created.
   # @param updated_at [datetime]
   #   Date and time the invoice was last updated.
-  Invoice = Struct.new(
+  Struct.new(
+    'Invoice',
     :id,
     :client,
     :line_items,

@@ -17,7 +17,8 @@ module Harvest
   #   Date and time the task was created.
   # @param updated_at [datetime]
   #   Date and time the task was last updated.
-  Task = Struct.new(
+  Struct.new(
+    'Task',
     :id,
     :name,
     :billable_by_default,

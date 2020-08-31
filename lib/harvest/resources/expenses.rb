@@ -15,7 +15,8 @@ module Harvest
   #   Date and time the expense category was created.
   # @param updated_at [datetime]
   #   Date and time the expense category was last updated.
-  ExpenseCategory = Struct.new(
+  Struct.new(
+    'ExpenseCategory',
     :id,
     :name,
     :unit_name,
@@ -60,7 +61,8 @@ module Harvest
   #   Date and time the expense was created.
   # @param updated_at [datetime]
   #   Date and time the expense was last updated.
-  Expense = Struct.new(
+  Struct.new(
+    'Expense',
     :id,
     :client,
     :project,

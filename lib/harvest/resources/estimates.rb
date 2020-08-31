@@ -49,7 +49,8 @@ module Harvest
   #   Date and time the estimate was created.
   # @param updated_at [datetime]
   #   Date and time the estimate was last updated.
-  Estimate = Struct.new(
+  Struct.new(
+    'Estimate',
     :id,
     :client,
     :line_items,
@@ -93,7 +94,8 @@ module Harvest
   #   Whether the estimate’s tax percentage applies to this line item.
   # @param taxed2 [boolean]
   #   Whether the estimate’s tax2 percentage applies to this line item.
-  EstimateLineItem = Struct.new(
+  Struct.new(
+    'EstimateLineItem',
     :id,
     :kind,
     :description,
@@ -129,7 +131,8 @@ module Harvest
   #   Date and time the message was created.
   # @param updated_at [datetime]
   #   Date and time the message was last updated.
-  EstimateMessage = Struct.new(
+  Struct.new(
+    'EstimateMessage',
     :id,
     :sent_by,
     :sent_by_email,
@@ -153,7 +156,8 @@ module Harvest
   #   Date and time the estimate item category was created.
   # @param updated_at [datetime]
   #   Date and time the estimate item category was last updated.
-  EstimateItemCategory = Struct.new(
+  Struct.new(
+    'EstimateItemCategory',
     :id,
     :name,
     :created_at,

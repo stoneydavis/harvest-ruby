@@ -18,7 +18,8 @@ module Harvest
   #   Date and time the client was created.
   # @param updated_at [datetime]
   #   Date and time the client was last updated.
-  ResourceClient = Struct.new(
+  Struct.new(
+    'ResourceClient',
     :id,
     :name,
     :is_active,

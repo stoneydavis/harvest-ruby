@@ -5,7 +5,8 @@ module Harvest
   #   Name of the message recipient.
   # @param email [string]
   #   Email of the message recipient.
-  MessageRecipient = Struct.new(
+  Struct.new(
+    'MessageRecipient',
     :name,
     :email,
     keyword_init: true
