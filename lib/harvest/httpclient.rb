@@ -37,7 +37,7 @@ module Harvest
           state: @state.merge(
             {
               headers: {
-                'User-Agent' => 'Ruby Harvest API Sample',
+                'User-Agent' => 'harvest-ruby API Client',
                 'Authorization' => "Bearer #{personal_token}",
                 'Harvest-Account-ID' => account_id
               }
