@@ -55,7 +55,7 @@ module Harvest
     end
 
     class Api
-      def initialize(domain:, account_id:, personal_token:, admin_api: false)
+      def initialize(domain:, account_id:, personal_token:)
         @domain = domain
         @account_id = account_id
         @personal_token = personal_token
