@@ -82,7 +82,7 @@ module Harvest
             end
           )
         when 'post'
-          @client[struct.path].post(struct.payload, struct.headers)
+          client[struct.path].post(struct.payload, struct.headers)
         end
 
       end
