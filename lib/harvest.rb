@@ -10,14 +10,6 @@ require 'harvest/httpclient'
 require 'harvest/exceptions'
 require 'harvest/clientmixin'
 
-def convert_to_sym(data)
-  return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
-
-  return data.map { |v| convert_to_sym(v) } if data.respond_to?('each')
-
-  data
-end
-
 module Harvest
   # Harvest client interface
   class Client

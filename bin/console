@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'pry'
 require 'configparser'
@@ -7,41 +8,6 @@ require "bundler/setup"
 require 'harvest'
 require 'active_support/core_ext/date/calculations'
 
-configfile = File.expand_path('~/.config/start-harvest.conf')
-config = ConfigParser.new(configfile).map { |k, v| [k, convert_to_sym(v)] }.to_h
-# binding.pry
-
-harvest = Harvest::Client.new(**config['harvest'])
-# binding.pry
-puts "Active user is #{harvest.active_user.first_name} #{harvest.active_user.last_name}"
-
-if harvest.active_user.is_admin
-  puts "User is Admin"
-else
-  puts "User is not an Admin"
-end
-
-# project_assignments = harvest.project_assignments
-# binding.pry
-
-have_filtered_project_assignments = harvest
-                                    .projects
-                                    .discover
-                                    .select { |pa| pa.project.name.eql?('Intellaegis - Managed') }
-# harvest
-#   .projects
-#   .select { |project| project if project.project[:name] == 'Intellaegis - Managed' }
-#   .tasks.select { |ta| ta if ta.task.name == 'Teams' }
-#   .time_entry
-#   .create(
-#     **{
-#       spent_date: Date.today.to_s,
-#       notes: 'Testing'
-#       # external_reference: { id: task.id, group_id: task.project.id, permalink: @jira.html_jira_link(task.key) }
-#     }
-#   )
-
-# @api private
 def today
   beginning_of_day
 end
@@ -58,11 +24,60 @@ def yesterday_beginning_of_day
   Date.today.yesterday.to_datetime
 end
 
-harvest_time_entry = harvest.time_entry
+def convert_to_sym(data)
+  return data.map { |k, v| [k.to_sym, convert_to_sym(v)] }.to_h if data.respond_to?('keys')
+
+  return data.map { |v| convert_to_sym(v) } if data.respond_to?('each')
+
+  data
+end
+
+def config(configfile: File.expand_path('~/.config/start-harvest.conf'))
+  convert_to_sym(ConfigParser.new(configfile))
+end
+
+def config_subsection(key: :harvest)
+  config[key]
+end
+
+harvest = Harvest::Client.new(**config_subsection)
+
+puts "Active user is #{harvest.active_user.first_name} #{harvest.active_user.last_name}"
+
+if harvest.active_user.is_admin
+  puts "User is Admin"
+else
+  puts "User is not an Admin"
+end
+
+have_filtered_project_assignments = harvest
+  .projects
+  .discover
+  .select { |pa| pa.project.name.eql?('Intellaegis - Managed') }
+
+tasks = have_filtered_project_assignments.tasks.select { |ta|ta.task.name == 'Teams' }
+
+# harvest
+#   .projects
+#   .select { |project| project if project.project[:name] == 'Intellaegis - Managed' }
+#   .tasks.select { |ta| ta if ta.task.name == 'Teams' }
+#   .time_entry
+#   .create(
+#     **{
+#       spent_date: Date.today.to_s,
+#       notes: 'Testing'
+#       # external_reference: { id: task.id, group_id: task.project.id, permalink: @jira.html_jira_link(task.key) }
+#     }
+#   )
+
+harvest_time_entry = harvest
+  .time_entry
   .discover(from: Date.today.yesterday.to_s)
+
 today_te = harvest_time_entry
-  .select {|te| te.created_at > today }
+  .select { |te| te.created_at > today }
+
 yesterday_te = harvest_time_entry
-  .select {|te| te.created_at > yesterday_beginning_of_day && te.created_at < today }
+  .select { |te| te.created_at > yesterday_beginning_of_day && te.created_at < today }
 
 binding.pry
