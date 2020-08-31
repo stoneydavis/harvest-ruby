@@ -58,7 +58,7 @@ module Harvest
     # Find single instance of resource
     def find(id:)
       # binding.pry
-      case @state[:default]
+      case @state[:active]
       when :projects
         @state[@state[:default]] = [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
         self
@@ -68,7 +68,7 @@ module Harvest
     # Discover resources
     def discover(**params)
       # binding.pry
-      case @state[:default]
+      case @state[:active]
       when :projects
         if @admin_api && @active_user.is_admin
           @state[@state[:default]] = admin_projects
@@ -92,7 +92,7 @@ module Harvest
 
     # Create an instance of object based on state
     def create(**kwargs)
-      case @state
+      case @state[:active]
       when :time_entry
         # required_keys = %i[spent_date]
         # TODO: check if keys required are present and raise if not
