@@ -12,22 +12,22 @@ module Harvest
 
       attr_reader :state
 
-      def method_missing(m, *args)
-        if allowed?(m)
+      def method_missing(meth, *args)
+        if allowed?(meth)
           Client.new(
-            state: @state.merge(m => args.first),
+            state: @state.merge(meth => args.first)
           )
         else
           super
         end
       end
 
-      def allowed?(m)
+      def allowed?(meth)
         %i[
           domain
           headers
           client
-        ].include?(m)
+        ].include?(meth)
       end
 
       def respond_to_missing?(*)
