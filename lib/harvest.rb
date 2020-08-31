@@ -29,20 +29,21 @@ module Harvest
       @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
     end
 
-    def allowed?(m)
+    def allowed?(meth)
       %i[
         projects
         project_tasks
         time_entry
-      ].include?(m)
+        tasks
+      ].include?(meth)
     end
 
-    def method_missing(m, *args)
-      if allowed?(m)
+    def method_missing(meth, *args)
+      if allowed?(meth)
         Harvest::Client.new(
           @config.merge({
             admin_api: @admin_api,
-            state: @state.merge(m => args.first ? !args.first.nil? : [], default: m)
+            state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
           })
         )
       else
