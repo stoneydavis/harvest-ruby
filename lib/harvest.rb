@@ -12,13 +12,50 @@ require 'harvest/exceptions'
 module Harvest
   # Harvest client interface
   class Client
-    attr_reader :active_user, :client, :time_entries, :factory
+    attr_reader :active_user, :client, :time_entries, :factory, :state
 
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
-    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: {})
+    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
+
+      @FINDERS = {
+        projects: ->(id) { [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))] },
+        time_entry: ->(id) {},
+        project_tasks: ->(id) {},
+        tasks: ->(id) {}
+      }
+
+      @DISCOVERER = {
+        projects: ->(_params) { @admin_api && @active_user.is_admin ? admin_projects : project_assignments },
+        project_tasks: ->(_params) { @state[:filtered][:projects][0].task_assignments },
+        time_entry: ->(params) { select_time_entries(**params) }
+      }
+
+      @CREATORS = {
+        projects: ->(_kwargs) {},
+        project_tasks: ->(_kwargs) {},
+        time_entry: lambda do |kwargs|
+          # required_keys = %i[spent_date]
+          # TODO: check if keys required are present and raise if not
+          payload = time_entry_payload(kwargs)
+          begin
+            @client.api_call(
+              @client.api_caller(
+                'time_entries',
+                http_method: 'post',
+                payload: payload.to_json,
+                headers: { content_type: 'application/json' }
+              )
+            )
+          rescue RestClient::UnprocessableEntity => e
+            puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
+            raise
+          end
+        end
+
+      }
       @config = { domain: domain, account_id: account_id, personal_token: personal_token }
       @client = Harvest::HTTP::Api.new(**@config)
       @admin_api = admin_api
@@ -52,63 +89,28 @@ module Harvest
       # binding.pry
     end
 
-
     # Find single instance of resource
-    def find(id:)
-      # binding.pry
-      case @state[:active]
-      when :projects
-        @state[@state[:default]] = [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
-        self
-      end
+    def find(id)
+      @state[@state[:active]] = @FINDERS[@state[:active]].call(id)
+      self
     end
 
     # Discover resources
     def discover(**params)
-      # binding.pry
-      case @state[:active]
-      when :projects
-        if @admin_api && @active_user.is_admin
-          @state[@state[:default]] = admin_projects
-        else
-          @state[@state[:default]] = project_assignments
-        end
-      when :project_tasks
-        @state[@state[:default]] = @stat[:projects][0].task_assignments
-      when :time_entry
-        @state[@state[:default]] = select_time_entries(**params)
-      else
-        raise BadState 'Requires a state to call this method'
-      end
+      @state[@state[:active]] = @DISCOVERER[@state[:active]].call(params)
       self
     end
 
     # Select a subset of all items depending on state
     def select(&block)
-      @state[@state[:default]].select(&block)
+      @state[:filtered][@state[:active]] = @state[@state[:active]].select(&block)
+      self
     end
 
     # Create an instance of object based on state
     def create(**kwargs)
-      case @state[:active]
-      when :time_entry
-        # required_keys = %i[spent_date]
-        # TODO: check if keys required are present and raise if not
-        payload = time_entry_payload(kwargs)
-        begin
-          @client.api_call(
-            @client.api_caller(
-              'time_entries',
-              http_method: 'post',
-              payload: payload.to_json,
-              headers: { content_type: 'application/json' }
-            )
-          )
-        rescue RestClient::UnprocessableEntity => e
-          puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
-          raise
-        end
-      end
+      @state[@state[:active]] = @CREATORS[@state[:active]].call(kwargs)
+      self
     end
 
     # private
@@ -116,7 +118,7 @@ module Harvest
     # @api private
     # Some API calls will return Project others ProjectAssignment.
     def true_project(project)
-      return project.project if project.is_a?(Harvest::ProjectAssignment)
+      return project.project if project.is_a?(Struct::ProjectAssignment)
 
       project
     end
@@ -126,8 +128,8 @@ module Harvest
       possible_keys = %i[spent_date notes external_reference user_id]
       payload = kwargs.map { |k, v| [k, v] if possible_keys.include?(k) }.to_h
       payload[:user_id] ||= @active_user.id
-      payload[:task_id] = @tasks[0].task.id
-      payload[:project_id] = true_project(@projects[0]).id
+      payload[:task_id] = @state[:filtered][:project_tasks][0].task.id
+      payload[:project_id] = true_project(@state[:filtered][:projects][0]).id
       payload
     end
 
