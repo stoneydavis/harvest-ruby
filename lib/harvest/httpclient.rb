@@ -73,7 +73,6 @@ module Harvest
       # @api public
       # @param struct [Struct::ApiCall]
       def api_call(struct)
-        struct.headers['params'] = struct.param
         case struct.http_method
         when 'get'
           JSON.parse(
@@ -135,7 +134,11 @@ module Harvest
       :payload,
       :headers,
       keyword_init: true
-    )
+    ) do
+      def param(params)
+        headers['params'] = params
+      end
+    end
 
     Pagination = Struct.new(
       :path,
