@@ -20,9 +20,9 @@ module Harvest
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
-    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { default: 'values' })
-      @config = {domain: domain, account_id: account_id, personal_token: personal_token}
-      @client = Harvest::HTTP::Api.new(@config)
+    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: {})
+      @config = { domain: domain, account_id: account_id, personal_token: personal_token }
+      @client = Harvest::HTTP::Api.new(**@config)
       @admin_api = admin_api
       @factory = Harvest::ResourceFactory.new
       @state = state
@@ -41,7 +41,7 @@ module Harvest
     def method_missing(meth, *args)
       if allowed?(meth)
         Harvest::Client.new(
-          @config.merge({
+          **@config.merge({
             admin_api: @admin_api,
             state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
           })
