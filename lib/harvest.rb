@@ -8,12 +8,10 @@ require 'harvest/version'
 require 'harvest/resourcefactory'
 require 'harvest/httpclient'
 require 'harvest/exceptions'
-require 'harvest/clientmixin'
 
 module Harvest
   # Harvest client interface
   class Client
-    # include HarvestClientContextMixin
     attr_reader :active_user, :client, :time_entries, :factory
 
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
