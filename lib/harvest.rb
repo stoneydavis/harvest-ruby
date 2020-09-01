@@ -28,7 +28,7 @@ module Harvest
       }
 
       @DISCOVERER = {
-        projects: ->(_params) { @admin_api && @active_user.is_admin ? admin_projects : project_assignments },
+        projects: ->(_params) { @admin_api ? admin_projects : project_assignments },
         project_tasks: ->(_params) { @state[:filtered][:projects][0].task_assignments },
         time_entry: ->(params) { select_time_entries(**params) }
       }
@@ -56,12 +56,17 @@ module Harvest
         end
 
       }
+
       @config = { domain: domain, account_id: account_id, personal_token: personal_token }
       @client = Harvest::HTTP::Api.new(**@config)
-      @admin_api = admin_api
       @factory = Harvest::ResourceFactory.new
       @state = state
       @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
+      @admin_api = if @active_user.is_admin
+                     admin_api
+                   else
+                     false
+                   end
     end
 
     def allowed?(meth)
