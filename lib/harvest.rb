@@ -8,6 +8,7 @@ require 'harvest/version'
 require 'harvest/resourcefactory'
 require 'harvest/httpclient'
 require 'harvest/exceptions'
+require 'harvest/finders'
 
 module Harvest
   # Harvest client interface
@@ -19,12 +20,9 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-
+      load_finders
       @FINDERS = {
-        projects: ->(id) { [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))] },
-        time_entry: ->(id) {},
-        project_tasks: ->(id) {},
-        tasks: ->(id) {}
+        projects: ->(id) { [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))] }
       }
 
       @DISCOVERER = {
@@ -82,9 +80,9 @@ module Harvest
       if allowed?(meth)
         Harvest::Client.new(
           **@config.merge({
-            admin_api: @admin_api,
-            state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
-          })
+                            admin_api: @admin_api,
+                            state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
+                          })
         )
       else
 
@@ -172,6 +170,13 @@ module Harvest
         .map do |project|
           @factory.project_assignment(project)
         end
+    end
+
+    def load_finders
+      binding.pry
+      Harvest::Finders.constants.each do |finder|
+        @FINDERS[finder.downcase] = finder.new(@client, @factory)
+      end
     end
   end
 end

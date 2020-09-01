@@ -53,7 +53,7 @@ module Harvest
         )
       end
     end
-    # Make 
+    # Make
     class Api
       def initialize(domain:, account_id:, personal_token:)
         @domain = domain
@@ -84,7 +84,6 @@ module Harvest
         when 'post'
           client[struct.path].post(struct.payload, struct.headers)
         end
-
       end
 
       # Pagination through request

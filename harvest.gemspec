@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Craig Davis']
   spec.email         = ['craig.davis@rackspace.com']
 
-  spec.summary       = %q{Fluent API Harvest Client API v2 }
-  spec.description   = %q{Harvest API for v2  written in Fluent API style}
+  spec.summary       = 'Fluent API Harvest Client API v2 '
+  spec.description   = 'Harvest API for v2  written in Fluent API style'
   spec.homepage      = 'https://github.com/blade2005/harvest-ruby/wiki'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')

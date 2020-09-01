@@ -6,7 +6,7 @@ require 'harvest/resources'
 module Harvest
   # Conversion for hash to Struct including nested items.
   # TODO: Refactor for figuring out what Struct should be used
-  class NoValidStruct <ArgumentError
+  class NoValidStruct < ArgumentError
   end
 
   class ResourceFactory
@@ -82,7 +82,9 @@ module Harvest
 
     def project_assignment(data)
       data ||= {}
-      convert_dates(convert_project_client(convert_task_assignments(Struct::ProjectAssignment.new(data)))) unless data.nil?
+      unless data.nil?
+        convert_dates(convert_project_client(convert_task_assignments(Struct::ProjectAssignment.new(data))))
+      end
     end
 
     def project(data)
@@ -142,7 +144,9 @@ module Harvest
     private
 
     def convert_estimate_line_items(data)
-      data.line_items = data.line_items.map { |ta| estimate_line_item(ta) } unless data.line_items.nil?
+      unless data.line_items.nil?
+        data.line_items = data.line_items.map { |ta| estimate_line_item(ta) }
+      end
       data
     end
 
@@ -171,7 +175,9 @@ module Harvest
     end
 
     def convert_task_assignments(data)
-      data.task_assignments = data.task_assignments.map { |ta| task_assignment(ta) } unless data.task_assignments.nil?
+      unless data.task_assignments.nil?
+        data.task_assignments = data.task_assignments.map { |ta| task_assignment(ta) }
+      end
       data
     end
 
