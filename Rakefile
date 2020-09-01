@@ -7,7 +7,7 @@ require 'yard'
 
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new(:spec) do |rubocop|
-  rubocop.options << '--safe-auto-correct'
+  rubocop.options << '--auto-correct'
   rubocop.options << '--display-cop-names'
 end
 
