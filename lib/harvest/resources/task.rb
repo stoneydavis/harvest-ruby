@@ -6,7 +6,8 @@ module Harvest
   # @param name [string]
   #   The name of the task.
   # @param billable_by_default [boolean]
-  #   Used in determining whether default tasks should be marked billable when creating a new project.
+  #   Used in determining whether default tasks should be marked billable when
+  #   creating a new project.
   # @param default_hourly_rate [decimal]
   #   The hourly rate to use for this task when it is added to a project.
   # @param is_default [boolean]

@@ -83,7 +83,13 @@ module Harvest
     def project_assignment(data)
       data ||= {}
       unless data.nil?
-        convert_dates(convert_project_client(convert_task_assignments(Struct::ProjectAssignment.new(data))))
+        convert_dates(
+          convert_project_client(
+            convert_task_assignments(
+              Struct::ProjectAssignment.new(data)
+            )
+          )
+        )
       end
     end
 

@@ -18,7 +18,8 @@ module Harvest
   # @param plan_type [string]
   #   The type of plan the company is on. Examples: trial, free, or simple-v4
   # @param clock [string]
-  #   Used to represent whether the company is using a 12-hour or 24-hour clock. Returns either 12h or 24h.
+  #   Used to represent whether the company is using a 12-hour or 24-hour clock.
+  #   Returns either 12h or 24h.
   # @param decimal_symbol [string]
   #   Symbol used when formatting decimals.
   # @param thousands_separator [string]

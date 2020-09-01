@@ -18,13 +18,17 @@ module Harvest
   # @param task_assignment [object]
   #   A task assignment object of the associated task.
   # @param external_reference [object]
-  #   An object containing the id, group_id, permalink, service, and service_icon_url of the associated external reference.
+  #   An object containing the id, group_id, permalink, service, and
+  #   service_icon_url of the associated external reference.
   # @param invoice [object]
-  #   Once the time entry has been invoiced, this field will include the associated invoice’s id and number.
+  #   Once the time entry has been invoiced, this field will include the
+  #   associated invoice's id and number.
   # @param hours [decimal]
   #   Number of (decimal time) hours tracked in this time entry.
   # @param rounded_hours [decimal]
-  #   Number of (decimal time) hours tracked in this time entry used in summary reports and invoices. This value is rounded according to the Time Rounding setting in your Preferences.
+  #   Number of (decimal time) hours tracked in this time entry used in summary
+  #   reports and invoices. This value is rounded according to the Time Rounding
+  #   setting in your Preferences.
   # @param notes [string]
   #   Notes attached to the time entry.
   # @param is_locked [boolean]

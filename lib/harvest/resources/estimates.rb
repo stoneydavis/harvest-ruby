@@ -4,7 +4,7 @@ module Harvest
   # @param id [integer]
   #   Unique ID for the estimate.
   # @param client [object]
-  #   An object containing estimate’s client id and name.
+  #   An object containing estimate's client id and name.
   # @param line_items [array]
   #   Array of estimate line items.
   # @param creator [object]
@@ -18,11 +18,14 @@ module Harvest
   # @param amount [decimal]
   #   The total amount for the estimate, including any discounts and taxes.
   # @param tax [decimal]
-  #   This percentage is applied to the subtotal, including line items and discounts.
+  #   This percentage is applied to the subtotal, including line items and
+  #   discounts.
   # @param tax_amount [decimal]
-  #   The first amount of tax included, calculated from tax. If no tax is defined, this value will be null.
+  #   The first amount of tax included, calculated from tax. If no tax is
+  #   defined, this value will be null.
   # @param tax2 [decimal]
-  #   This percentage is applied to the subtotal, including line items and discounts.
+  #   This percentage is applied to the subtotal, including line items and
+  #   discounts.
   # @param tax2_amount [decimal]
   #   The amount calculated from tax2.
   # @param discount [decimal]
@@ -91,9 +94,9 @@ module Harvest
   # @param amount [decimal]
   #   The line item subtotal (quantity * unit_price).
   # @param taxed [boolean]
-  #   Whether the estimate’s tax percentage applies to this line item.
+  #   Whether the estimate's tax percentage applies to this line item.
   # @param taxed2 [boolean]
-  #   Whether the estimate’s tax2 percentage applies to this line item.
+  #   Whether the estimate's tax2 percentage applies to this line item.
   Struct.new(
     'EstimateLineItem',
     :id,
@@ -126,7 +129,8 @@ module Harvest
   # @param send_me_a_copy [boolean]
   #   Whether to email a copy of the message to the current user.
   # @param event_type [string]
-  #   The type of estimate event that occurred with the message: send, accept, decline, re-open, view, or invoice.
+  #   The type of estimate event that occurred with the message: send, accept,
+  #   decline, re-open, view, or invoice.
   # @param created_at [datetime]
   #   Date and time the message was created.
   # @param updated_at [datetime]

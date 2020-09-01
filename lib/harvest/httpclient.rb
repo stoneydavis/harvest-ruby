@@ -92,9 +92,9 @@ module Harvest
       def pagination(struct)
         struct.param[:page] = struct.page_count
         page = api_call(struct.to_api_call)
-        struct.entries.concat(page[struct.data_key])
+        struct.rows.concat(page[struct.data_key])
 
-        return struct.entries if struct.page_count >= page['total_pages']
+        return struct.rows if struct.page_count >= page['total_pages']
 
         struct.page_count += 1
         pagination(struct)
@@ -106,7 +106,7 @@ module Harvest
           {
             http_method: http_method,
             param: param,
-            entries: entries,
+            rows: entries,
             page_count: page_count,
             headers: headers
           }
@@ -146,7 +146,7 @@ module Harvest
       :page_count,
       :param,
       :payload,
-      :entries,
+      :rows,
       :headers,
       keyword_init: true
     ) do

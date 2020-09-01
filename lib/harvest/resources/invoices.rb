@@ -4,13 +4,13 @@ module Harvest
   # @param id [integer]
   #   Unique ID for the invoice.
   # @param client [object]
-  #   An object containing invoice’s client id and name.
+  #   An object containing invoice's client id and name.
   # @param line_items [array]
   #   Array of invoice line items.
   # @param estimate [object]
-  #   An object containing the associated estimate’s id.
+  #   An object containing the associated estimate's id.
   # @param retainer [object]
-  #   An object containing the associated retainer’s id.
+  #   An object containing the associated retainer's id.
   # @param creator [object]
   #   An object containing the id and name of the person that created the invoice.
   # @param client_key [string]
@@ -26,7 +26,8 @@ module Harvest
   # @param tax [decimal]
   #   This percentage is applied to the subtotal, including line items and discounts.
   # @param tax_amount [decimal]
-  #   The first amount of tax included, calculated from tax. If no tax is defined, this value will be null.
+  #   The first amount of tax included, calculated from tax. If no tax is
+  #   defined, this value will be null.
   # @param tax2 [decimal]
   #   This percentage is applied to the subtotal, including line items and discounts.
   # @param tax2_amount [decimal]
@@ -52,7 +53,8 @@ module Harvest
   # @param due_date [date]
   #   Date the invoice is due.
   # @param payment_term [string]
-  #   The timeframe in which the invoice should be paid. Options: upon receipt, net 15, net 30, net 45, net 60, or custom.
+  #   The timeframe in which the invoice should be paid. Options: upon receipt,
+  #   net 15, net 30, net 45, net 60, or custom.
   # @param sent_at [datetime]
   #   Date and time the invoice was sent.
   # @param paid_at [datetime]
@@ -108,7 +110,7 @@ module Harvest
   # @param id [integer]
   #   Unique ID for the line item.
   # @param project [object]
-  #   An object containing the associated project’s id, name, and code.
+  #   An object containing the associated project's id, name, and code.
   # @param kind [string]
   #   The name of an invoice item category.
   # @param description [string]
@@ -120,9 +122,9 @@ module Harvest
   # @param amount [decimal]
   #   The line item subtotal (quantity * unit_price).
   # @param taxed [boolean]
-  #   Whether the invoice’s tax percentage applies to this line item.
+  #   Whether the invoice's tax percentage applies to this line item.
   # @param taxed2 [boolean]
-  #   Whether the invoice’s tax2 percentage applies to this line item.
+  #   Whether the invoice's tax2 percentage applies to this line item.
   InvoiceLineItem = Struct.new(
     :id,
     :project,
@@ -153,7 +155,8 @@ module Harvest
   # @param body [string]
   #   The message body.
   # @param include_link_to_client_invoice [boolean]
-  #   Whether to include a link to the client invoice in the message body. Not used when thank_you is true.
+  #   Whether to include a link to the client invoice in the message body. Not
+  #   used when thank_you is true.
   # @param attach_pdf [boolean]
   #   Whether to attach the invoice PDF to the message email.
   # @param send_me_a_copy [boolean]
@@ -161,7 +164,8 @@ module Harvest
   # @param thank_you [boolean]
   #   Whether this is a thank you message.
   # @param event_type [string]
-  #   The type of invoice event that occurred with the message: send, close, draft, re-open, or view.
+  #   The type of invoice event that occurred with the message: send, close,
+  #   draft, re-open, or view.
   # @param reminder [boolean]
   #   Whether this is a reminder message.
   # @param send_reminder_on [date]
