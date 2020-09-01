@@ -122,10 +122,6 @@ RSpec.describe Harvest::ResourceFactory do
   let(:blank_te) { factory.time_entry(nil) }
   let(:blank_pa) { factory.project_assignment(nil) }
 
-  let(:blank_pa) { factory.project_assignment(nil) }
-  let(:blank_te) { factory.time_entry(nil) }
-  let(:te) { factory.time_entry(time_entry_raw) }
-
   context 'when creating project assignment struct' do
     it 'sets project assignment id' do
       expect(pa.id).to eq(123_456_789)

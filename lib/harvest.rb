@@ -22,7 +22,9 @@ module Harvest
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
       load_finders
       @FINDERS = {
-        projects: ->(id) { [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))] }
+        projects: lambda do |id|
+          [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
+        end
       }
 
       @DISCOVERER = {
@@ -79,10 +81,12 @@ module Harvest
     def method_missing(meth, *args)
       if allowed?(meth)
         Harvest::Client.new(
-          **@config.merge({
-                            admin_api: @admin_api,
-                            state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
-                          })
+          **@config.merge(
+            {
+              admin_api: @admin_api,
+              state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
+            }
+          )
         )
       else
 
