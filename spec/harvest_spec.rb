@@ -16,6 +16,6 @@ RSpec.describe Harvest do
   end
 
   it 'create harvest http client' do
-    expect(Harvest::HTTP::Api.new(config))
+    expect(Harvest::HTTP::Api.new(config)).not_to be nil
   end
 end

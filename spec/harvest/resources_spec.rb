@@ -144,11 +144,11 @@ RSpec.describe Harvest::ResourceFactory do
     end
 
     it 'sets created_at' do
-      expect(pa.created_at).to be_instance_of(DateTime)
+      expect(pa.created_at.instance_of?(DateTime)).to eq(true)
     end
 
     it 'sets updated_at' do
-      expect(pa.updated_at).to be_instance_of(DateTime)
+      expect(pa.updated_at.instance_of?(DateTime)).to eq(true)
     end
 
     it 'sets client name' do
