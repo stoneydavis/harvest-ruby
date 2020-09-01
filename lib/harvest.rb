@@ -20,7 +20,7 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-      load_finders
+      # load_finders
       @FINDERS = {
         projects: lambda do |id|
           [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
