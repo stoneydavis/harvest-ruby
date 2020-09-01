@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Harvest::ResourceFactory do
-  factory = Harvest::ResourceFactory.new
+  factory = described_class.new
   project_assignment_raw = {
     id: 123_456_789,
     is_project_manager: false,
