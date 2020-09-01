@@ -19,3 +19,9 @@ gem "activesupport", "~> 6.0"
 gem "reek", "~> 6.0"
 
 gem "webmock", "~> 3.8"
+
+gem "rubocop-rspec", "~> 1.43"
+
+gem "rubocop-rake", "~> 0.5.1"
+
+gem "yard", "~> 0.9.25"
