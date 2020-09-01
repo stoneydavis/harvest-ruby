@@ -45,5 +45,18 @@ RSpec.describe Harvest do
         .to_return(body: body.to_json, status: 200)
       expect(@harvest.projects.find(body['id']).state[:projects][0].id).to eq(body['id'])
     end
+
+    it 'select a projects' do
+      body = {
+        project_assignments: [
+          { 'id' => 349_832, project: { 'name' => 'Bob Co' } },
+          { 'id' => 97_836_415, project: { name: 'George Co' } }
+        ]
+      }
+      stub_request(:get, "#{config[:domain]}/api/v2/users/#{@harvest.active_user.id}/project_assignments")
+        .to_return(body: body.to_json, status: 200)
+      projects = @harvest.projects.discover.select { |pa| pa.project.name == 'Bob Co' }
+      expect(projects.state[:filtered][:projects][0].project.name).to eq('Bob Co')
+    end
   end
 end
