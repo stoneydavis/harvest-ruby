@@ -2,7 +2,7 @@
 
 module Harvest
   module HTTP
-    # Lower level class which create the Client for making api calls
+    # lower level class which create the Client for making api calls
     class Client
       def initialize(state: {})
         @state = state
@@ -53,7 +53,7 @@ module Harvest
         )
       end
     end
-
+    # Make 
     class Api
       def initialize(domain:, account_id:, personal_token:)
         @domain = domain
