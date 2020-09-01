@@ -10,7 +10,7 @@ module Harvest
   # @param email [string]
   #   The email address of the user.
   # @param timezone [string]
-  #   The user’s timezone.
+  #   The users timezone.
   # @param has_access_to_all_future_projects [boolean]
   #   Whether the user should be automatically added to future projects.
   # @param is_contractor [boolean]
@@ -28,20 +28,22 @@ module Harvest
   # @param is_active [boolean]
   #   Whether the user is active or archived.
   # @param weekly_capacity [integer]
-  #   The number of hours per week this person is available to work in seconds, in half hour increments. For example, if a person’s capacity is 35 hours, the API will return 126000 seconds.
+  #   The number of hours per week this person is available to work in seconds,
+  #   in half hour increments. For example, if a persons capacity is 35 hours,i
+  #   the API will return 126000 seconds.
   # @param default_hourly_rate [decimal]
   #   The billable rate to use for this user when they are added to a project.
   # @param cost_rate [decimal]
-  #   The cost rate to use for this user when calculating a project’s costs vs billable amount.
+  #   The cost rate to use for this user when calculating a projects costs vs billable amount.
   # @param roles [array]
   #   of strings    The role names assigned to this person.
   # @param avatar_url [string]
-  #   The URL to the user’s avatar image.
+  #   The URL to the users avatar image.
   # @param created_at [datetime]
   #   Date and time the user was created.
   # @param updated_at [datetime]
   #   Date and time the user was last updated.
-  # @param name [string] combined first name and last name, only used o TimeEntry
+  # @param name [string] combined first name and last name, only used in TimeEntry
   Struct.new(
     'User',
     :id,

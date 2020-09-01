@@ -30,19 +30,21 @@ module Harvest
   # @param id [integer]
   #   Unique ID for the expense.
   # @param client [object]
-  #   An object containing the expense’s client id, name, and currency.
+  #   An object containing the expense's client id, name, and currency.
   # @param project [object]
-  #   An object containing the expense’s project id, name, and code.
+  #   An object containing the expense's project id, name, and code.
   # @param expense_category [object]
-  #   An object containing the expense’s expense category id, name, unit_price, and unit_name.
+  #   An object containing the expense's expense category id, name, unit_price,
+  #   and unit_name.
   # @param user [object]
   #   An object containing the id and name of the user that recorded the expense.
   # @param user_assignment [object]
   #   A user assignment object of the user that recorded the expense.
   # @param receipt [object]
-  #   An object containing the expense’s receipt URL and file name.
+  #   An object containing the expense's receipt URL and file name.
   # @param invoice [object]
-  #   Once the expense has been invoiced, this field will include the associated invoice’s id and number.
+  #   Once the expense has been invoiced, this field will include the associated
+  #   invoice's id and number.
   # @param notes [string]
   #   Textual notes used to describe the expense.
   # @param billable [boolean]
@@ -50,7 +52,8 @@ module Harvest
   # @param is_closed [boolean]
   #   Whether the expense has been approved or closed for some other reason.
   # @param is_locked [boolean]
-  #   Whether the expense has been been invoiced, approved, or the project or person related to the expense is archived.
+  #   Whether the expense has been been invoiced, approved, or the project or
+  #   person related to the expense is archived.
   # @param is_billed [boolean]
   #   Whether or not the expense has been marked as invoiced.
   # @param locked_reason [string]

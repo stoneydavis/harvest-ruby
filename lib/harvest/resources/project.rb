@@ -5,7 +5,7 @@ module Harvest
   # @param id [integer]
   #   Unique ID for the project.
   # @param client [object]
-  #   An object containing the project’s client id, name, and currency.
+  #   An object containing the project's client id, name, and currency.
   # @param name [string]
   #   Unique name for the project.
   # @param code [string]

@@ -10,7 +10,7 @@ module Harvest
   # @param address [string]
   #   The physical address for the client.
   # @param statement_key [string]
-  #   Used to build a URL to your client’s invoice dashboard:
+  #   Used to build a URL to your client's invoice dashboard:
   # https://{ACCOUNT_SUBDOMAIN}.harvestapp.com/client/invoices/{statement_key}
   # @param currency [string]
   #   The currency code associated with this client.

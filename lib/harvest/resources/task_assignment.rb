@@ -10,11 +10,13 @@ module Harvest
   # @param is_active [boolean]
   #   Whether the task assignment is active or archived.
   # @param billable [boolean]
-  #   Whether the task assignment is billable or not. For example: if set to true, all time tracked on this project for the associated task will be marked as billable.
+  #   Whether the task assignment is billable or not. For example: if set to
+  #   true, all time tracked on this project for the associated task will be
+  #   marked as billable.
   # @param hourly_rate [decimal]
-  #   Rate used when the project’s bill_by is Tasks.
+  #   Rate used when the project's bill_by is Tasks.
   # @param budget [decimal]
-  #   Budget used when the project’s budget_by is task or task_fees.
+  #   Budget used when the project's budget_by is task or task_fees.
   # @param created_at [datetime]
   #   Date and time the task assignment was created.
   # @param updated_at [datetime]

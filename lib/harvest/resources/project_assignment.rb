@@ -8,11 +8,14 @@ module Harvest
   # @param is_project_manager [boolean]
   #   Determines if the user has Project Manager permissions for the project.
   # @param use_default_rates [boolean]
-  #   Determines which billable rate(s) will be used on the project for this user when bill_by is People. When true, the project will use the user’s default billable rates. When false, the project will use the custom rate defined on this user assignment.
+  #   Determines which billable rate(s) will be used on the project for this
+  #   user when bill_by is People. When true, the project will use the user's
+  #   default billable rates. When false, the project will use the custom rate
+  #   defined on this user assignment.
   # @param hourly_rate [decimal]
-  #   Custom rate used when the project’s bill_by is People and use_default_rates is false.
+  #   Custom rate used when the project's bill_by is People and use_default_rates is false.
   # @param budget [decimal]
-  #   Budget used when the project’s budget_by is person.
+  #   Budget used when the project's budget_by is person.
   # @param created_at [datetime]
   #   Date and time the project assignment was created.
   # @param updated_at [datetime]
@@ -20,7 +23,7 @@ module Harvest
   # @param project [object]
   #   An object containing the assigned project id, name, and code.
   # @param client [object]
-  #   An object containing the project’s client id and name.
+  #   An object containing the project's client id and name.
   # @param task_assignments [array]
   #   Array of task assignment objects associated with the project.
   Struct.new(
