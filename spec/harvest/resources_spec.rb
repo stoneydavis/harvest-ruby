@@ -50,66 +50,6 @@ RSpec.describe Harvest::ResourceFactory do
       }
     ]
   }
-
-  let(:pa) { factory.project_assignment(project_assignment_raw) }
-  let(:te) { factory.time_entry(time_entry_raw) }
-  let(:blank_te) { factory.time_entry(nil) }
-  let(:blank_pa) { factory.project_assignment(nil) }
-
-  let(:blank_pa) { factory.project_assignment(nil) }
-  let(:blank_te) { factory.time_entry(nil) }
-  let(:te) { factory.time_entry(time_entry_raw) }
-
-  context 'when creating project assignment struct' do
-    it 'sets project assignment id' do
-      expect(pa.id).to eq(123_456_789)
-    end
-
-    it 'sets is_active' do
-      expect(pa.is_active).to eq(true)
-    end
-
-    it 'sets project name' do
-      expect(pa.project.name).to eq('Customer Name')
-    end
-
-    it 'sets project code' do
-      expect(pa.project.code).to eq('16393')
-    end
-
-    it 'sets created_at' do
-      expect(pa.created_at).to be_instance_of(DateTime)
-    end
-
-    it 'sets updated_at' do
-      expect(pa.updated_at).to be_instance_of(DateTime)
-    end
-
-    it 'sets client name' do
-      expect(pa.client.name).to eq('Customer Name')
-    end
-
-    it 'sets client currency' do
-      expect(pa.client.currency).to eq('USD')
-    end
-
-    it 'has task assignments' do
-      expect(pa.task_assignments.length).to eq(2)
-    end
-
-    it 'sets task assignment is_active' do
-      expect(pa.task_assignments[0].is_active).to eq(true)
-    end
-
-    it 'sets task assignment id' do
-      expect(pa.task_assignments[0].id).to eq(987_654_321)
-    end
-
-    it 'sets task assignment task id' do
-      expect(pa.task_assignments[0].task.id).to eq(11_299_508)
-    end
-  end
-
   time_entry_raw = {
     id: 1_301_576_365,
     spent_date: '2020-08-25',
@@ -176,6 +116,65 @@ RSpec.describe Harvest::ResourceFactory do
     created_at: '2020-08-14T22:32:40Z',
     updated_at: '2020-08-14T22:32:57Z'
   }
+
+  let(:pa) { factory.project_assignment(project_assignment_raw) }
+  let(:te) { factory.time_entry(time_entry_raw) }
+  let(:blank_te) { factory.time_entry(nil) }
+  let(:blank_pa) { factory.project_assignment(nil) }
+
+  let(:blank_pa) { factory.project_assignment(nil) }
+  let(:blank_te) { factory.time_entry(nil) }
+  let(:te) { factory.time_entry(time_entry_raw) }
+
+  context 'when creating project assignment struct' do
+    it 'sets project assignment id' do
+      expect(pa.id).to eq(123_456_789)
+    end
+
+    it 'sets is_active' do
+      expect(pa.is_active).to eq(true)
+    end
+
+    it 'sets project name' do
+      expect(pa.project.name).to eq('Customer Name')
+    end
+
+    it 'sets project code' do
+      expect(pa.project.code).to eq('16393')
+    end
+
+    it 'sets created_at' do
+      expect(pa.created_at).to be_instance_of(DateTime)
+    end
+
+    it 'sets updated_at' do
+      expect(pa.updated_at).to be_instance_of(DateTime)
+    end
+
+    it 'sets client name' do
+      expect(pa.client.name).to eq('Customer Name')
+    end
+
+    it 'sets client currency' do
+      expect(pa.client.currency).to eq('USD')
+    end
+
+    it 'has task assignments' do
+      expect(pa.task_assignments.length).to eq(2)
+    end
+
+    it 'sets task assignment is_active' do
+      expect(pa.task_assignments[0].is_active).to eq(true)
+    end
+
+    it 'sets task assignment id' do
+      expect(pa.task_assignments[0].id).to eq(987_654_321)
+    end
+
+    it 'sets task assignment task id' do
+      expect(pa.task_assignments[0].task.id).to eq(11_299_508)
+    end
+  end
 
   context 'when creating time entry struct' do
     it 'sets project name' do
