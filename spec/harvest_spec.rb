@@ -268,7 +268,7 @@ RSpec.describe Harvest do
       end
 
       it 'create time entry from project and task' do
-        stub_request(:post, 'https://exampledomain.harvestapp.com/api/v2/time_entries')
+        stub_request(:post, "#{config[:domain]}/api/v2/time_entries")
           .with(
             body: {
               spent_date: Date.today.to_s,
