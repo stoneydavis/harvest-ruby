@@ -34,42 +34,26 @@ RSpec.describe Harvest do
           {
             id: 1_302_371_653,
             spent_date: '2020-09-14',
-            hours: 8.0,
-            rounded_hours: 8.0,
-            notes: 'pto',
-            is_locked: false,
-            locked_reason: nil,
-            is_closed: false,
-            is_billed: false,
-            timer_started_at: nil,
-            started_time: nil,
-            ended_time: nil,
-            is_running: false,
-            billable: false,
-            budgeted: false,
-            billable_rate: nil,
-            cost_rate: nil,
-            created_at: '2020-08-26T14:59:57Z',
-            updated_at: '2020-08-26T14:59:57Z',
+            notes: 'Example Note',
             user: {
               id: 2_374_567,
-              name: 'Craig Davis'
+              name: 'Joe Smith'
             },
             client: {
               id: 5_743_008,
-              name: 'Onica',
+              name: 'Smith Co.',
               currency: 'USD'
 
             },
             project: {
               id: 23_938_119,
-              name: 'Onica - EE Internal',
-              code: '16282'
+              name: 'Internal',
+              code: '14562'
 
             },
             task: {
               id: 8_089_355,
-              name: 'PTO'
+              name: 'Billing Code'
 
             },
             user_assignment: {
@@ -101,39 +85,28 @@ RSpec.describe Harvest do
             id: 1_308_094_896,
             spent_date: '2020-09-02',
             hours: 0.2,
-            rounded_hours: 0.2,
-            notes: 'on call review',
-            is_locked: false,
-            locked_reason: nil,
-            is_closed: false,
-            is_billed: false,
+            notes: 'Other Example',
             timer_started_at: '2020-09-02T16:59:40Z',
             started_time: '11:59am',
-            ended_time: nil,
-            is_running: true,
-            billable: false,
-            budgeted: false,
-            billable_rate: nil,
-            cost_rate: nil,
             created_at: '2020-09-02T16:59:40Z',
             updated_at: '2020-09-02T16:59:40Z',
             user: {
               id: 2_374_567,
-              name: 'Craig Davis'
+              name: 'Joe Smith'
             },
             client: {
-              id: 5_743_008,
-              name: 'Onica',
+              id: 5_743_108,
+              name: 'Other Client',
               currency: 'USD'
             },
             project: {
               id: 23_938_119,
-              name: 'Onica - EE Internal',
-              code: '16282'
+              name: 'Other Project',
+              code: '4'
             },
             task: {
               id: 13_836_057,
-              name: 'Scrum/Team Meetings'
+              name: 'Other Task'
             },
             user_assignment: {
               id: 231_628_123,
@@ -269,15 +242,7 @@ RSpec.describe Harvest do
 
       it 'create time entry from project and task' do
         stub_request(:post, "#{config[:domain]}/api/v2/time_entries")
-          .with(
-            body: {
-              spent_date: Date.today.to_s,
-              notes: 'Testing',
-              user_id: 1_234_567,
-              task_id: nil,
-              project_id: nil
-            }.to_json
-          )
+          .with(body: { spent_date: Date.today.to_s, notes: 'Testing', user_id: 1_234_567, task_id: nil, project_id: nil }.to_json)
           .to_return(status: 200, body: te_body.to_json, headers: {})
 
         time_entry = tasks.time_entry.create(**{ spent_date: Date.today.to_s, notes: 'Testing' })
@@ -289,7 +254,9 @@ RSpec.describe Harvest do
       stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
         .to_return(status: 200, body: tes_body.to_json, headers: {})
 
-      harvest.time_entry.discover(from: Date.today.yesterday.to_s)
+      time_entries = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
+      expect(time_entries.state[:time_entry][0].notes).to eq('Example Note')
+      # binding.pry
     end
   end
 end
