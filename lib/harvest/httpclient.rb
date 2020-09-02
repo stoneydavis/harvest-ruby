@@ -73,17 +73,12 @@ module Harvest
       # @api public
       # @param struct [Struct::ApiCall]
       def api_call(struct)
-        case struct.http_method
-        when 'get'
-          JSON.parse(
-            client[struct.path].get(struct.headers).tap do
-              require 'pry'
-              # binding.pry
-            end
-          )
-        when 'post'
-          client[struct.path].post(struct.payload, struct.headers)
-        end
+        JSON.parse(
+          send(struct.http_method.to_sym, struct).tap do
+            require 'pry'
+            # binding.pry
+          end
+        )
       end
 
       # Pagination through request
@@ -123,6 +118,16 @@ module Harvest
             headers: headers
           }
         )
+      end
+
+      private
+
+      def get(struct)
+        client[struct.path].get(struct.headers)
+      end
+
+      def post(struct)
+        client[struct.path].post(struct.payload, struct.headers)
       end
     end
 
