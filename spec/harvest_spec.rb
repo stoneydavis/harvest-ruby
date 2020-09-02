@@ -35,10 +35,10 @@ RSpec.describe Harvest do
     end
 
     it 'find project' do
-      body = { 'id' => 983_754 }
-      stub_request(:get, "#{config[:domain]}/api/v2/projects/983754")
+      body = { id: 983_754 }
+      stub_request(:get, "#{config[:domain]}/api/v2/projects/#{body[:id]}")
         .to_return(body: body.to_json, status: 200)
-      expect(harvest.projects.find(body['id']).state[:projects][0].id).to eq(body['id'])
+      expect(harvest.projects.find(body[:id]).state[:projects][0].id).to eq(body[:id])
     end
 
     context 'with project assignments' do
