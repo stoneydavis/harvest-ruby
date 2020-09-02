@@ -41,12 +41,14 @@ module Harvest
           # TODO: check if keys required are present and raise if not
           payload = time_entry_payload(kwargs)
           begin
-            @client.api_call(
-              @client.api_caller(
-                'time_entries',
-                http_method: 'post',
-                payload: payload.to_json,
-                headers: { content_type: 'application/json' }
+            @factory.time_entry(
+              @client.api_call(
+                @client.api_caller(
+                  'time_entries',
+                  http_method: 'post',
+                  payload: payload.to_json,
+                  headers: { content_type: 'application/json' }
+                )
               )
             )
           rescue RestClient::UnprocessableEntity => e
