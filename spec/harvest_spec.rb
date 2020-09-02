@@ -187,18 +187,17 @@ RSpec.describe Harvest do
             {
               id: 349_832,
               project: { name: 'Bob Co' }
-            },
-            {
+
+            }, {
               id: 97_836_415,
-              project: { name: 'George Co' },
-              task_assignments: [
+              project: { name: 'George Co' }, task_assignments: [
                 {
                   id: 654_987,
                   task: {
                     name: 'Example Task'
                   }
-                },
-                {
+
+                }, {
                   id: 987_654,
                   task: {
                     name: 'Other Task'
@@ -227,23 +226,23 @@ RSpec.describe Harvest do
           user: {
             id: harvest.active_user.id,
             name: "#{harvest.active_user.first_name} #{harvest.active_user.last_name}"
-          },
-          project: {
+
+          },          project: {
             name: tasks.state[:filtered][:projects][0].project.name,
             id: tasks.state[:filtered][:projects][0].project.id,
             code: tasks.state[:filtered][:projects][0].project.code
-          },
-          task: {
+
+          },          task: {
             id: tasks.state[:filtered][:project_tasks][0].task.id,
             name: tasks.state[:filtered][:project_tasks][0].task.name
-          },
-          user_assignment: {
+
+          },          user_assignment: {
             id: 232_453_160
-          },
-          task_assignment: {
+
+          },          task_assignment: {
             id: tasks.state[:filtered][:project_tasks][0].id
-          },
-          invoice: nil,
+
+          },          invoice: nil,
           external_reference: nil
         }
       end
