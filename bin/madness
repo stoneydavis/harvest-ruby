@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+require 'pry'
+
+module Madness
+  class FluentHashPI
+    def initialize(state: { default: nil})
+      @state = state
+    end
+
+    def respond_to_missing?(*)
+      super
+    end
+
+    def method_missing(m, *args)
+      super
+    rescue NoMethodError
+      FluentHashPI.new(
+        state: @state.merge(m => args.first, default: m)
+      )
+    end
+
+    def processor
+      # binding.pry
+      @state[@state[:default]].map do |entry|
+        [
+          "I do some kind of magic with every #{entry}",
+          'not that you would notice.',
+          ''
+        ]
+      end
+    end
+  end
+end
+
+m = Madness::FluentHashPI.new
+
+projects = m.projects
+binding.pry

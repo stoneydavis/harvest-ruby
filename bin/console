@@ -50,13 +50,7 @@ else
   puts "User is not an Admin"
 end
 
-projects = harvest.projects.discover
-project_assignments = projects.select { |pa| pa.project.name.eql?('Intellaegis - Managed') }
-tasks = project_assignments.project_tasks.discover.select { |ta| ta.task.name == 'Teams' }
-
 binding.pry
-
-# tasks.time_entry.create(**{ spent_date: Date.today.to_s, notes: 'Testing' })
 
 time_entry = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
 
