@@ -252,11 +252,18 @@ RSpec.describe Harvest do
 
     it 'discover time_entries' do
       stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
-        .to_return(status: 200, body: tes_body.to_json, headers: {})
+        .to_return(status: 200, body: tes_body.to_json)
 
       time_entries = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
       expect(time_entries.state[:time_entry][0].notes).to eq('Example Note')
-      # binding.pry
+    end
+
+    it 'find a time entry' do
+      specific_te = { id: 1_306_062_565 }
+      stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entry/1306062565')
+        .to_return(status: 200, body: specific_te.to_json, headers: {})
+
+      expect(harvest.time_entry.find(1_306_062_565).state[:time_entry][0].id).to eq(specific_te[:id])
     end
   end
 end

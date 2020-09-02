@@ -51,13 +51,3 @@ else
 end
 
 binding.pry
-
-time_entry = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
-
-today_te = time_entry.select { |te| te.created_at > today }
-
-yesterday_te = time_entry.select { |te| te.created_at > yesterday_beginning_of_day && te.created_at < today }
-
-binding.pry
-
-harvest.time_entry.find(1306062565)
