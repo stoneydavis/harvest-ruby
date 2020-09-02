@@ -10,10 +10,10 @@ module Harvest
   end
 
   class ResourceFactory
-    # def factory(data)
-    #   # I don't care what data is other than that Struct will accept it.
-    #   data ||= {}
-    # end
+    def resource(klass, data)
+      data ||= {}
+      send(klass.to_sym, data)
+    end
 
     def message_recipient(data)
       data ||= {}

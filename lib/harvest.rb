@@ -23,7 +23,7 @@ module Harvest
       # load_finders
       @FINDERS = {
         projects: lambda do |id|
-          [@factory.project(@client.api_call(@client.api_caller("projects/#{id}")))]
+          [@factory.resource(:project, @client.api_call(@client.api_caller("projects/#{id}")))]
         end,
         time_entry: lambda do |id|
           [@factory.time_entry(@client.api_call(@client.api_caller("time_entry/#{id}")))]
