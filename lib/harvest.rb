@@ -125,7 +125,7 @@ module Harvest
     # @api private
     # Some API calls will return Project others ProjectAssignment.
     def true_project(project)
-      return project.project if project.responds_to?(:project)
+      return project.project if project.respond_to?(:project)
 
       project
     end
