@@ -112,7 +112,7 @@ module Harvest
         Harvest::HTTP::ApiCall.new(
           {
             path: path,
-            http_method: http_method,
+            http_method: http_method.to_sym,
             param: param,
             payload: payload,
             headers: headers
