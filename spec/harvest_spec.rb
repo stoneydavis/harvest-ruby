@@ -254,18 +254,18 @@ RSpec.describe Harvest do
         ).to_return(body: pa_body.to_json, status: 200)
       end
 
-      # # Covered by 'create time entry from project and task'
-      # xit 'select a project' do
-      #   project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'Bob Co' }
-      #   expect(project_assignments.state[:filtered][:projects][0].project.name).to eq('Bob Co')
-      # end
+      # Covered by 'create time entry from project and task'
+      it 'select a project' do
+        project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'Bob Co' }
+        expect(project_assignments.state[:filtered][:projects][0].project.name).to eq('Bob Co')
+      end
 
-      # # Covered by 'create time entry from project and task'
-      # xit 'select task assignments' do
-      #   project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'George Co' }
-      #   tasks = project_assignments.project_tasks.discover.select { |ta| ta.task.name == 'Example Task' }
-      #   expect(tasks.state[:filtered][:project_tasks][0].id).to eq(654_987)
-      # end
+      # Covered by 'create time entry from project and task'
+      it 'select task assignments' do
+        project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'George Co' }
+        tasks = project_assignments.project_tasks.discover.select { |ta| ta.task.name == 'Example Task' }
+        expect(tasks.state[:filtered][:project_tasks][0].id).to eq(654_987)
+      end
 
       it 'create time entry from project and task' do
         stub_request(:post, 'https://exampledomain.harvestapp.com/api/v2/time_entries')
