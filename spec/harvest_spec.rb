@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pry'
+require 'active_support/core_ext/date/calculations'
 
 RSpec.describe Harvest do
   let(:config) do
@@ -22,6 +23,144 @@ RSpec.describe Harvest do
   end
 
   context 'with harvest' do
+    let(:tes_body) do
+      {
+        per_page: 100,
+        total_pages: 1,
+        total_entries: 2,
+        previous_page: nil,
+        page: 1,
+        time_entries: [
+          {
+            id: 1_302_371_653,
+            spent_date: '2020-09-14',
+            hours: 8.0,
+            rounded_hours: 8.0,
+            notes: 'pto',
+            is_locked: false,
+            locked_reason: nil,
+            is_closed: false,
+            is_billed: false,
+            timer_started_at: nil,
+            started_time: nil,
+            ended_time: nil,
+            is_running: false,
+            billable: false,
+            budgeted: false,
+            billable_rate: nil,
+            cost_rate: nil,
+            created_at: '2020-08-26T14:59:57Z',
+            updated_at: '2020-08-26T14:59:57Z',
+            user: {
+              id: 2_374_567,
+              name: 'Craig Davis'
+            },
+            client: {
+              id: 5_743_008,
+              name: 'Onica',
+              currency: 'USD'
+
+            },
+            project: {
+              id: 23_938_119,
+              name: 'Onica - EE Internal',
+              code: '16282'
+
+            },
+            task: {
+              id: 8_089_355,
+              name: 'PTO'
+
+            },
+            user_assignment: {
+              id: 231_628_123,
+              is_project_manager: false,
+              is_active: true,
+              use_default_rates: true,
+              budget: nil,
+              created_at: '2020-02-07T19:27:12Z',
+              updated_at: '2020-02-07T19:27:12Z',
+              hourly_rate: nil
+
+            },
+            task_assignment: {
+              id: 257_614_925,
+              billable: false,
+              is_active: true,
+              created_at: '2020-02-07T19:17:12Z',
+              updated_at: '2020-02-07T19:17:12Z',
+              hourly_rate: nil,
+              budget: nil
+
+            },
+            invoice: nil,
+            external_reference: nil
+
+          },
+          {
+            id: 1_308_094_896,
+            spent_date: '2020-09-02',
+            hours: 0.2,
+            rounded_hours: 0.2,
+            notes: 'on call review',
+            is_locked: false,
+            locked_reason: nil,
+            is_closed: false,
+            is_billed: false,
+            timer_started_at: '2020-09-02T16:59:40Z',
+            started_time: '11:59am',
+            ended_time: nil,
+            is_running: true,
+            billable: false,
+            budgeted: false,
+            billable_rate: nil,
+            cost_rate: nil,
+            created_at: '2020-09-02T16:59:40Z',
+            updated_at: '2020-09-02T16:59:40Z',
+            user: {
+              id: 2_374_567,
+              name: 'Craig Davis'
+            },
+            client: {
+              id: 5_743_008,
+              name: 'Onica',
+              currency: 'USD'
+            },
+            project: {
+              id: 23_938_119,
+              name: 'Onica - EE Internal',
+              code: '16282'
+            },
+            task: {
+              id: 13_836_057,
+              name: 'Scrum/Team Meetings'
+            },
+            user_assignment: {
+              id: 231_628_123,
+              is_project_manager: false,
+              is_active: true,
+              use_default_rates: true,
+              budget: nil,
+              created_at: '2020-02-07T19:27:12Z',
+              updated_at: '2020-02-07T19:27:12Z',
+              hourly_rate: nil
+            },
+            task_assignment: {
+              id: 257_614_929,
+              billable: false,
+              is_active: true,
+              created_at: '2020-02-07T19:17:12Z',
+              updated_at: '2020-02-07T19:17:12Z',
+              hourly_rate: nil,
+              budget: nil
+            },
+            invoice: nil,
+            external_reference: nil
+          }
+        ]
+      }
+    end
+
     it 'has active user id' do
       expect(harvest.active_user.id).to eq(1_234_567)
     end
@@ -145,6 +284,13 @@ RSpec.describe Harvest do
         time_entry = tasks.time_entry.create(**{ spent_date: Date.today.to_s, notes: 'Testing' })
         expect(time_entry.state[:time_entry].id).to eq(te_body[:id])
       end
+    end
+
+    it 'discover time_entries' do
+      stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
+        .to_return(status: 200, body: tes_body.to_json, headers: {})
+
+      harvest.time_entry.discover(from: Date.today.yesterday.to_s)
     end
   end
 end
