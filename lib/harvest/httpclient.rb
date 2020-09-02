@@ -97,7 +97,7 @@ module Harvest
 
       # Create Paginaation struct message to pass to pagination call
       def paginator(http_method: 'get', page_count: 1, param: {}, entries: [], headers: {})
-        Harvest::HTTP::Pagination.new(
+        Struct::Pagination.new(
           {
             http_method: http_method,
             param: param,
@@ -109,7 +109,7 @@ module Harvest
       end
 
       def api_caller(path, http_method: 'get', param: {}, payload: nil, headers: {})
-        Harvest::HTTP::ApiCall.new(
+        Struct::ApiCall.new(
           {
             path: path,
             http_method: http_method.to_sym,
@@ -131,7 +131,8 @@ module Harvest
       end
     end
 
-    ApiCall = Struct.new(
+    Struct.new(
+      'ApiCall',
       :path,
       :http_method,
       :param,
@@ -144,7 +145,8 @@ module Harvest
       end
     end
 
-    Pagination = Struct.new(
+    Struct.new(
+      'Pagination',
       :path,
       :data_key,
       :http_method,
@@ -156,7 +158,7 @@ module Harvest
       keyword_init: true
     ) do
       def to_api_call
-        ApiCall.new(
+        Struct::ApiCall.new(
           {
             path: path,
             http_method: http_method,
