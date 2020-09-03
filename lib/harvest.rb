@@ -10,6 +10,7 @@ require 'harvest/httpclient'
 require 'harvest/exceptions'
 require 'harvest/finders'
 require 'harvest/discovers'
+require 'harvest/creates'
 
 def to_class_name(key)
   key.to_s.split('_').map { |e| e.capitalize }.join.to_sym
@@ -25,32 +26,6 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-      @CREATORS = {
-        projects: ->(_kwargs) {},
-        project_tasks: ->(_kwargs) {},
-        time_entry: lambda do |kwargs|
-          # required_keys = %i[spent_date]
-          # TODO: check if keys required are present and raise if not
-          payload = time_entry_payload(kwargs)
-          begin
-            @factory.time_entry(
-              @client.api_call(
-                @client.api_caller(
-                  'time_entries',
-                  http_method: 'post',
-                  payload: payload.to_json,
-                  headers: { content_type: 'application/json' }
-                )
-              )
-            )
-          rescue RestClient::UnprocessableEntity => e
-            puts "Harvest Error from Create Time Entry: #{JSON.parse(e.response.body)['message']}"
-            raise
-          end
-        end
-
-      }
-
       @config = { domain: domain, account_id: account_id, personal_token: personal_token }
       @client = Harvest::HTTP::Api.new(**@config)
       @factory = Harvest::ResourceFactory.new
@@ -112,7 +87,9 @@ module Harvest
 
     # Create an instance of object based on state
     def create(**kwargs)
-      @state[@state[:active]] = @CREATORS[@state[:active]].call(kwargs)
+      @state[@state[:active]] = Harvest::Create.const_get(to_class_name(@state[:active])).new.create(
+        @factory, @client, active_user, @state, kwargs
+      )
       self
     end
 
@@ -120,20 +97,5 @@ module Harvest
 
     # @api private
     # Some API calls will return Project others ProjectAssignment.
-    def true_project(project)
-      return project.project if project.respond_to?(:project)
-
-      project
-    end
-
-    # @api private
-    def time_entry_payload(kwargs)
-      possible_keys = %i[spent_date notes external_reference user_id]
-      payload = kwargs.map { |k, v| [k, v] if possible_keys.include?(k) }.to_h
-      payload[:user_id] ||= @active_user.id
-      payload[:task_id] = @state[:filtered][:project_tasks][0].task.id
-      payload[:project_id] = true_project(@state[:filtered][:projects][0]).id
-      payload
-    end
   end
 end
