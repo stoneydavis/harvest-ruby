@@ -9,6 +9,7 @@ require 'harvest/resourcefactory'
 require 'harvest/httpclient'
 require 'harvest/exceptions'
 require 'harvest/finders'
+require 'harvest/discovers'
 
 def to_class_name(key)
   key.to_s.split('_').map { |e| e.capitalize }.join.to_sym
@@ -24,12 +25,6 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-      @DISCOVERER = {
-        projects: ->(_params) { @admin_api ? admin_projects : project_assignments },
-        project_tasks: ->(_params) { @state[:filtered][:projects][0].task_assignments },
-        time_entry: ->(params) { select_time_entries(**params) }
-      }
-
       @CREATORS = {
         projects: ->(_kwargs) {},
         project_tasks: ->(_kwargs) {},
@@ -103,7 +98,9 @@ module Harvest
 
     # Discover resources
     def discover(**params)
-      @state[@state[:active]] = @DISCOVERER[@state[:active]].call(params)
+      @state[@state[:active]] = Harvest::Discovers.const_get(to_class_name(@state[:active])).new.discover(
+        @admin_api, @client, @factory, active_user, @state, params
+      )
       self
     end
 
@@ -137,42 +134,6 @@ module Harvest
       payload[:task_id] = @state[:filtered][:project_tasks][0].task.id
       payload[:project_id] = true_project(@state[:filtered][:projects][0]).id
       payload
-    end
-
-    # @api private
-    # All Projects
-    def admin_projects
-      @client
-        .api_call(
-          @client.api_caller('projects')
-        )['projects']
-        .map { |project| @factor.project(project) }
-    end
-
-    # @api private
-    # Time Entries
-    def select_time_entries(**params)
-      paginator = @client.paginator
-      paginator.path = 'time_entries'
-      paginator.data_key = 'time_entries'
-      paginator.param = params
-      @client.pagination(paginator).map do |time_entry|
-        @factory.time_entry(time_entry)
-      end
-    end
-
-    # @api private
-    # Projects assigned to the specified user_id
-    def project_assignments(user_id: active_user.id)
-      @client
-        .api_call(
-          @client.api_caller(
-            "users/#{user_id}/project_assignments"
-          )
-        )['project_assignments']
-        .map do |project|
-          @factory.project_assignment(project)
-        end
     end
   end
 end
