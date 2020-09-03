@@ -10,6 +10,10 @@ require 'harvest/httpclient'
 require 'harvest/exceptions'
 require 'harvest/finders'
 
+def to_class_name(key)
+  key.to_s.split('_').map { |e| e.capitalize }.join.to_sym
+end
+
 module Harvest
   # Harvest client interface
   class Client
@@ -20,16 +24,6 @@ module Harvest
     # @param personal_token [String] Harvest Personal token
     # @param admin_api [Boolean] Changes functionality of how the interface works
     def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-      # load_finders
-      @FINDERS = {
-        projects: lambda do |id|
-          [@factory.resource(:project, @client.api_call(@client.api_caller("projects/#{id}")))]
-        end,
-        time_entry: lambda do |id|
-          [@factory.time_entry(@client.api_call(@client.api_caller("time_entry/#{id}")))]
-        end
-      }
-
       @DISCOVERER = {
         projects: ->(_params) { @admin_api ? admin_projects : project_assignments },
         project_tasks: ->(_params) { @state[:filtered][:projects][0].task_assignments },
@@ -103,7 +97,7 @@ module Harvest
 
     # Find single instance of resource
     def find(id)
-      @state[@state[:active]] = @FINDERS[@state[:active]].call(id)
+      @state[@state[:active]] = Harvest::Finders.const_get(to_class_name(@state[:active])).new.find(@factory, @client, id)
       self
     end
 
@@ -179,13 +173,6 @@ module Harvest
         .map do |project|
           @factory.project_assignment(project)
         end
-    end
-
-    def load_finders
-      binding.pry
-      Harvest::Finders.constants.each do |finder|
-        @FINDERS[finder.downcase] = finder.new(@client, @factory)
-      end
     end
   end
 end
