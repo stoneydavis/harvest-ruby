@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Some API calls will return Project others ProjectAssignment.
 def true_project(project)
   return project.project if project.respond_to?(:project)
 

@@ -92,10 +92,5 @@ module Harvest
       )
       self
     end
-
-    # private
-
-    # @api private
-    # Some API calls will return Project others ProjectAssignment.
   end
 end
