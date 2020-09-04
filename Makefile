@@ -3,3 +3,6 @@ test:
 
 setup:
 	bin/setup
+
+yard:
+	bundle exec rake yard-server
