@@ -64,6 +64,7 @@ module Harvest
       end
     rescue NoMethodError
       # binding.pry
+      raise Harvest::Exceptions::BadState, "#{meth} is an invalid state change."
     end
 
     # Find single instance of resource

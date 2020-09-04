@@ -22,6 +22,10 @@ RSpec.describe Harvest do
     expect(Harvest::VERSION).not_to be nil
   end
 
+  it 'change state to invalid state raises NoMethodError' do
+    expect { harvest.no_such_method }.to raise_error(Harvest::Exceptions::BadState)
+  end
+
   context 'with harvest' do
     let(:tes_body) do
       {
