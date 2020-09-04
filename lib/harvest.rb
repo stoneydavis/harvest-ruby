@@ -53,7 +53,10 @@ module Harvest
           **@config.merge(
             {
               admin_api: @admin_api,
-              state: @state.merge(meth => args.first ? !args.first.nil? : [], active: meth)
+              state: @state.merge(
+                meth => args.first ? !args.first.nil? : [],
+                active: meth
+              )
             }
           )
         )
