@@ -34,4 +34,4 @@ gem 'simplecov', '~> 0.19.0'
 
 # gem 'pry-byebug', '~> 3.9'
 
-gem "redcarpet", "~> 3.5"
+gem 'redcarpet', '~> 3.5'
