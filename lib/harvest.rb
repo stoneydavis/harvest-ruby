@@ -30,7 +30,7 @@ module Harvest
       @state = state
       @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
       @admin_api = if @active_user.is_admin
-                     admin_api
+                     config.admin_api
                    else
                      false
                    end
