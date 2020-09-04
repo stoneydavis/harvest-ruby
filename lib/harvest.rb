@@ -24,9 +24,11 @@ module Harvest
     # @param domain [String] Harvest domain ex: https://company.harvestapp.com
     # @param account_id [Integer] Harvest Account id
     # @param personal_token [String] Harvest Personal token
-    # @param admin_api [Boolean] Changes functionality of how the interface works
-    def initialize(domain:, account_id:, personal_token:, admin_api: false, state: { filtered: {} })
-      @config = { domain: domain, account_id: account_id, personal_token: personal_token }
+    # @param admin_api [Boolean] Certain API Requests will fail if you are not
+    #                            an admin in Harvest. This helps set that
+    #                            functionality to limit broken interfaces
+    def initialize(config, state: { filtered: {} })
+      @config = config
       @client = Harvest::HTTP::Api.new(**@config)
       @factory = Harvest::ResourceFactory.new
       @state = state
@@ -50,14 +52,10 @@ module Harvest
     def method_missing(meth, *args)
       if allowed?(meth)
         Harvest::Client.new(
-          **@config.merge(
-            {
-              admin_api: @admin_api,
-              state: @state.merge(
-                meth => args.first ? !args.first.nil? : [],
-                active: meth
-              )
-            }
+          @config,
+          state: @state.merge(
+            meth => args.first ? !args.first.nil? : [],
+            active: meth
           )
         )
       else
