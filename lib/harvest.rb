@@ -13,7 +13,7 @@ require 'harvest/discovers'
 require 'harvest/creates'
 
 def to_class_name(key)
-  key.to_s.split('_').map { |e| e.capitalize }.join.to_sym
+  key.to_s.split('_').map(&:capitalize).join.to_sym
 end
 
 module Harvest
