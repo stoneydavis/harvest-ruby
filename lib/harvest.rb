@@ -21,12 +21,8 @@ module Harvest
   class Client
     attr_reader :active_user, :client, :time_entries, :factory, :state
 
-    # @param domain [String] Harvest domain ex: https://company.harvestapp.com
-    # @param account_id [Integer] Harvest Account id
-    # @param personal_token [String] Harvest Personal token
-    # @param admin_api [Boolean] Certain API Requests will fail if you are not
-    #                            an admin in Harvest. This helps set that
-    #                            functionality to limit broken interfaces
+    # @param config [Struct::Config] Configuration Struct which provides attributes
+    # @param state [Hash] State of the Client for FluentAPI
     def initialize(config, state: { filtered: {} })
       @config = config
       @client = Harvest::HTTP::Api.new(**@config)
