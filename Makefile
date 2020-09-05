@@ -5,4 +5,5 @@ setup:
 	bin/setup
 
 yard:
+	bundle exec rake yard
 	bundle exec rake yard-server
