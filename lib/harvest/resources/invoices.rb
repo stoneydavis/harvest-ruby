@@ -125,7 +125,8 @@ module Harvest
   #   Whether the invoice's tax percentage applies to this line item.
   # @param taxed2 [boolean]
   #   Whether the invoice's tax2 percentage applies to this line item.
-  InvoiceLineItem = Struct.new(
+  Struct.new(
+    'InvoiceLineItem',
     :id,
     :project,
     :kind,
@@ -174,7 +175,8 @@ module Harvest
   #   Date and time the message was created.
   # @param updated_at [datetime]
   #   Date and time the message was last updated.
-  InvoiceMessage = Struct.new(
+  Struct.new(
+    'InvoiceMessage',
     :id,
     :sent_by,
     :sent_by_email,
@@ -217,7 +219,8 @@ module Harvest
   #   Date and time the payment was recorded.
   # @param updated_at [datetime]
   #   Date and time the payment was last updated.
-  InvoicePayment = Struct.new(
+  Struct.new(
+    'InvoicePayment',
     :id,
     :amount,
     :paid_at,
@@ -244,7 +247,8 @@ module Harvest
   #   Date and time the invoice item category was created.
   # @param updated_at [datetime]
   #   Date and time the invoice item category was last updated.
-  InvoiceItemCategory = Struct.new(
+  Struct.new(
+    'InvoiceItemCategory',
     :id,
     :name,
     :use_as_service,
