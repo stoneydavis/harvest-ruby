@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Harvest
-  # @param name [string]
+  # @param name [String]
   #   Name of the message recipient.
-  # @param email [string]
+  # @param email [String]
   #   Email of the message recipient.
   Struct.new(
     'MessageRecipient',

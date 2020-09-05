@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 module Harvest
-  # @param id [integer]
+  # @param id [Integer]
   #   Unique ID for the user assignment.
-  # @param project [object]
+  # @param project [Struct]
   #   An object containing the id, name, and code of the associated project.
-  # @param user [object]
+  # @param user [Struct]
   #   An object containing the id and name of the associated user.
-  # @param is_active [boolean]
+  # @param is_active [Boolean]
   #   Whether the user assignment is active or archived.
-  # @param is_project_manager [boolean]
+  # @param is_project_manager [Boolean]
   #   Determines if the user has Project Manager permissions for the project.
-  # @param use_default_rates [boolean]
+  # @param use_default_rates [Boolean]
   #   Determines which billable rates will be used on the project for this user
   #   when bill_by is People. When true, the project will use the users
   #   default billable rates. When false, the project will use the custom rate
@@ -20,9 +20,9 @@ module Harvest
   #   Custom rate used when the projects bill_by is People and use_default_rates is false.
   # @param budget [decimal]
   #   Budget used when the projects budget_by is person.
-  # @param created_at [datetime]
+  # @param created_at [DateTime]
   #   Date and time the user assignment was created.
-  # @param updated_at [datetime]
+  # @param updated_at [DateTime]
   #   Date and time the user assignment was last updated.
   Struct.new(
     'UserAssignment',

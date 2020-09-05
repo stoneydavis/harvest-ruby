@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 module Harvest
-  # @param id [integer]
+  # @param id [Integer]
   #   Unique ID for the client.
-  # @param name [string]
+  # @param name [String]
   #   A textual description of the client.
-  # @param is_active [boolean]
+  # @param is_active [Boolean]
   #   Whether the client is active or archived.
-  # @param address [string]
+  # @param address [String]
   #   The physical address for the client.
-  # @param statement_key [string]
+  # @param statement_key [String]
   #   Used to build a URL to your client's invoice dashboard:
   # https://{ACCOUNT_SUBDOMAIN}.harvestapp.com/client/invoices/{statement_key}
-  # @param currency [string]
+  # @param currency [String]
   #   The currency code associated with this client.
-  # @param created_at [datetime]
+  # @param created_at [DateTime]
   #   Date and time the client was created.
-  # @param updated_at [datetime]
+  # @param updated_at [DateTime]
   #   Date and time the client was last updated.
   Struct.new(
     'ResourceClient',

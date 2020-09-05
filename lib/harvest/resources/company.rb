@@ -1,40 +1,40 @@
 # frozen_string_literal: true
 
 module Harvest
-  # @param base_uri [string]
+  # @param base_uri [String]
   #   The Harvest URL for the company.
-  # @param full_domain [string]
+  # @param full_domain [String]
   #   The Harvest domain for the company.
-  # @param name [string]
+  # @param name [String]
   #   The name of the company.
-  # @param is_active [boolean]
+  # @param is_active [Boolean]
   #   Whether the company is active or archived.
-  # @param week_start_day [string]
+  # @param week_start_day [String]
   #   The week day used as the start of the week. Returns one of: Saturday, Sunday, or Monday.
-  # @param wants_timestamp_timers [boolean]
+  # @param wants_timestamp_timers [Boolean]
   #   Whether time is tracked via duration or start and end times.
-  # @param time_format [string]
+  # @param time_format [String]
   #   The format used to display time in Harvest. Returns either decimal or hours_minutes.
-  # @param plan_type [string]
+  # @param plan_type [String]
   #   The type of plan the company is on. Examples: trial, free, or simple-v4
-  # @param clock [string]
+  # @param clock [String]
   #   Used to represent whether the company is using a 12-hour or 24-hour clock.
   #   Returns either 12h or 24h.
-  # @param decimal_symbol [string]
+  # @param decimal_symbol [String]
   #   Symbol used when formatting decimals.
-  # @param thousands_separator [string]
+  # @param thousands_separator [String]
   #   Separator used when formatting numbers.
-  # @param color_scheme [string]
+  # @param color_scheme [String]
   #   The color scheme being used in the Harvest web client.
-  # @param weekly_capacity [integer]
+  # @param weekly_capacity [Integer]
   #   The weekly capacity in seconds.
-  # @param expense_feature [boolean]
+  # @param expense_feature [Boolean]
   #   Whether the expense module is enabled.
-  # @param invoice_feature [boolean]
+  # @param invoice_feature [Boolean]
   #   Whether the invoice module is enabled.
-  # @param estimate_feature [boolean]
+  # @param estimate_feature [Boolean]
   #   Whether the estimate module is enabled.
-  # @param approval_feature [boolean]
+  # @param approval_feature [Boolean]
   #   Whether the approval module is enabled.
   Struct.new(
     'Company',
