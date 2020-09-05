@@ -36,4 +36,4 @@ gem 'simplecov', '~> 0.19.0'
 
 gem 'redcarpet', '~> 3.5'
 
-gem "yard-struct", "~> 1.1"
+gem 'yard-struct', '~> 1.1'
