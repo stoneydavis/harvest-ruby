@@ -12,10 +12,13 @@ require 'harvest/finders'
 require 'harvest/discovers'
 require 'harvest/creates'
 
+# Conform to naming pattern of Finder, Discover, Creators.
+# @param key [Symbol] symbol of state
 def to_class_name(key)
   key.to_s.split('_').map(&:capitalize).join.to_sym
 end
 
+# Harvest
 module Harvest
   # Harvest client interface
   class Client
@@ -45,6 +48,8 @@ module Harvest
       ].include?(meth)
     end
 
+    # @param meth [Symbol]
+    # @param *args [Array] arguments passed to method.
     def method_missing(meth, *args)
       if allowed?(meth)
         Harvest::Client.new(
