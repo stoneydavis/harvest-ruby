@@ -26,7 +26,7 @@ module Harvest
   #   An object containing the project's client id and name.
   # @param task_assignments [List]
   #   Array of task assignment objects associated with the project.
-  Struct.new(
+  ProjectAssignment = Struct.new(
     'ProjectAssignment',
     :id,
     :is_project_manager,

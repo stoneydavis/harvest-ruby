@@ -24,7 +24,7 @@ module Harvest
   #   Date and time the user assignment was created.
   # @param updated_at [DateTime]
   #   Date and time the user assignment was last updated.
-  Struct.new(
+  UserAssignment = Struct.new(
     'UserAssignment',
     :id,
     :project,

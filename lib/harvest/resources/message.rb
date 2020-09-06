@@ -5,7 +5,7 @@ module Harvest
   #   Name of the message recipient.
   # @param email [String]
   #   Email of the message recipient.
-  Struct.new(
+  MessageRecipient = Struct.new(
     'MessageRecipient',
     :name,
     :email,

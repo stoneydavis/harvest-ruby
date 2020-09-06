@@ -44,7 +44,7 @@ module Harvest
   # @param updated_at [DateTime]
   #   Date and time the user was last updated.
   # @param name [String] combined first name and last name, only used in TimeEntry
-  Struct.new(
+  User = Struct.new(
     'User',
     :id,
     :first_name,

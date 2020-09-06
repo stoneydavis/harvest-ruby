@@ -59,7 +59,7 @@ module Harvest
   #   Date and time the time entry was created. Use the ISO 8601 Format.
   # @param updated_at [DateTime]
   #   Date and time the time entry was last updated. Use the ISO 8601 Format.
-  Struct.new(
+  TimeEntry = Struct.new(
     'TimeEntry',
     :id,
     :spent_date,
@@ -91,7 +91,7 @@ module Harvest
     keyword_init: true
   )
 
-  Struct.new(
+  TimeEntryExternalReference = Struct.new(
     'TimeEntryExternalReference',
     :id,
     :group_id,

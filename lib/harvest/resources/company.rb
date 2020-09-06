@@ -36,7 +36,7 @@ module Harvest
   #   Whether the estimate module is enabled.
   # @param approval_feature [Boolean]
   #   Whether the approval module is enabled.
-  Struct.new(
+  Company = Struct.new(
     'Company',
     :base_uri,
     :full_domain,

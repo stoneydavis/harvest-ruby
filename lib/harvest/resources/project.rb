@@ -50,7 +50,7 @@ module Harvest
   #   Date and time the project was created.
   # @param updated_at [DateTime]
   #   Date and time the project was last updated.
-  Struct.new(
+  Project = Struct.new(
     'Project',
     :bill_by,
     :budget,
