@@ -18,6 +18,13 @@ def to_class_name(key)
   key.to_s.split('_').map(&:capitalize).join.to_sym
 end
 
+def merge_state(state, meth, args)
+  state.merge(
+    meth => args.first ? !args.first.nil? : [],
+    active: meth
+  )
+end
+
 # Harvest
 module Harvest
   # Harvest client interface
@@ -54,10 +61,7 @@ module Harvest
       if allowed?(meth)
         Harvest::Client.new(
           @config,
-          state: @state.merge(
-            meth => args.first ? !args.first.nil? : [],
-            active: meth
-          )
+          state: merge_state(@state, meth, args)
         )
       else
 
