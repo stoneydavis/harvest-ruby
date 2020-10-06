@@ -3,7 +3,7 @@
 require_relative 'lib/harvest/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'harvest'
+  spec.name          = 'harvest-ruby-v2'
   spec.version       = Harvest::VERSION
   spec.authors       = ['Craig Davis']
   spec.email         = ['craig.davis@rackspace.com']
