@@ -56,6 +56,12 @@ module Harvest
     end
 
     # @param meth [Symbol]
+    # @return [Boolean]
+    def respond_to_missing?(meth)
+      allowed?(meth)
+    end
+
+    # @param meth [Symbol]
     # @param *args [Array] arguments passed to method.
     def method_missing(meth, *args)
       if allowed?(meth)
@@ -74,13 +80,17 @@ module Harvest
 
     # Find single instance of resource
     def find(id)
-      @state[@state[:active]] = Harvest::Finders.const_get(to_class_name(@state[:active])).new.find(@factory, @client, id)
+      @state[@state[:active]] = Harvest::Finders.const_get(
+        to_class_name(@state[:active])
+      ).new.find(@factory, @client, id)
       self
     end
 
     # Discover resources
     def discover(**params)
-      @state[@state[:active]] = Harvest::Discovers.const_get(to_class_name(@state[:active])).new.discover(
+      @state[@state[:active]] = Harvest::Discovers.const_get(
+        to_class_name(@state[:active])
+      ).new.discover(
         @admin_api, @client, @factory, active_user, @state, params
       )
       self
@@ -94,7 +104,9 @@ module Harvest
 
     # Create an instance of object based on state
     def create(**kwargs)
-      @state[@state[:active]] = Harvest::Create.const_get(to_class_name(@state[:active])).new.create(
+      @state[@state[:active]] = Harvest::Create.const_get(
+        to_class_name(@state[:active])
+      ).new.create(
         @factory, @client, active_user, @state, kwargs
       )
       self
