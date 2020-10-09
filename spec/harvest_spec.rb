@@ -165,16 +165,18 @@ RSpec.describe Harvest do
               id: 349_832,
               project: { name: 'Bob Co' }
 
-            }, {
+            },
+            {
               id: 97_836_415,
-              project: { name: 'George Co' }, task_assignments: [
+              project: { name: 'George Co' },
+              task_assignments: [
                 {
                   id: 654_987,
                   task: {
                     name: 'Example Task'
                   }
-
-                }, {
+                },
+                {
                   id: 987_654,
                   task: {
                     name: 'Other Task'
@@ -204,22 +206,27 @@ RSpec.describe Harvest do
             id: harvest.active_user.id,
             name: "#{harvest.active_user.first_name} #{harvest.active_user.last_name}"
 
-          },          project: {
-            name: tasks.state[:filtered][:projects][0].project.name,
-            id: tasks.state[:filtered][:projects][0].project.id,
-            code: tasks.state[:filtered][:projects][0].project.code
+          },
+          project: {
+            name: tasks.state[:projects][0].project.name,
+            id: tasks.state[:projects][0].project.id,
+            code: tasks.state[:projects][0].project.code
 
-          },          task: {
-            id: tasks.state[:filtered][:project_tasks][0].task.id,
-            name: tasks.state[:filtered][:project_tasks][0].task.name
+          },
+          task: {
+            id: tasks.state[:project_tasks][0].task.id,
+            name: tasks.state[:project_tasks][0].task.name
 
-          },          user_assignment: {
+          },
+          user_assignment: {
             id: 232_453_160
 
-          },          task_assignment: {
-            id: tasks.state[:filtered][:project_tasks][0].id
+          },
+          task_assignment: {
+            id: tasks.state[:project_tasks][0].id
 
-          },          invoice: nil,
+          },
+          invoice: nil,
           external_reference: nil
         }
       end
@@ -234,14 +241,15 @@ RSpec.describe Harvest do
       # Covered by 'create time entry from project and task'
       it 'select a project' do
         project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'Bob Co' }
-        expect(project_assignments.state[:filtered][:projects][0].project.name).to eq('Bob Co')
+        expect(project_assignments.data.length).to eq(1)
+        expect(project_assignments.data[0].project.name).to eq('Bob Co')
       end
 
       # Covered by 'create time entry from project and task'
       it 'select task assignments' do
         project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'George Co' }
         tasks = project_assignments.project_tasks.discover.select { |ta| ta.task.name == 'Example Task' }
-        expect(tasks.state[:filtered][:project_tasks][0].id).to eq(654_987)
+        expect(tasks.data[0].id).to eq(654_987)
       end
 
       it 'create time entry from project and task' do

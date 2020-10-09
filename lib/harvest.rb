@@ -88,27 +88,29 @@ module Harvest
 
     # Discover resources
     def discover(**params)
-      @state[@state[:active]] = Harvest::Discovers.const_get(
-        to_class_name(@state[:active])
-      ).new.discover(
-        @admin_api, @client, @factory, active_user, @state, params
-      )
+      @state[@state[:active]] = Harvest::Discovers
+                                .const_get(to_class_name(@state[:active]))
+                                .new
+                                .discover(
+                                  @admin_api, @client, @factory, active_user, @state, params
+                                )
       self
     end
 
     # Select a subset of all items depending on state
     def select(&block)
-      @state[:filtered][@state[:active]] = @state[@state[:active]].select(&block)
+      @state[@state[:active]] = @state[@state[:active]].select(&block)
       self
     end
 
     # Map block of filtered items
     def map(&block)
-      if @state[:filtered].key?(@state[:active])
-        @state[:filtered][@state[:active]].map(&block)
-      else
-        @state[@state[:active]].map(&block)
-      end
+      @state[@state[:active]].map(&block)
+    end
+
+    # Return data from the active state in the base state or filtered.
+    def data
+      @state[@state[:active]]
     end
 
     # Create an instance of object based on state

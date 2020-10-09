@@ -51,7 +51,7 @@ module Harvest
 
     class ProjectTasks
       def discover(_admin_api, _client, _factory, _active_user, state, _params)
-        state[:filtered][:projects][0].task_assignments
+        state[:projects][0].task_assignments
       end
     end
   end

@@ -37,8 +37,8 @@ module Harvest
         possible_keys = %i[spent_date notes external_reference user_id]
         payload = kwargs.map { |k, v| [k, v] if possible_keys.include?(k) }.to_h
         payload[:user_id] ||= @active_user.id
-        payload[:task_id] = @state[:filtered][:project_tasks][0].task.id
-        payload[:project_id] = true_project(@state[:filtered][:projects][0]).id
+        payload[:task_id] = @state[:project_tasks][0].task.id
+        payload[:project_id] = true_project(@state[:projects][0]).id
         payload
       end
     end
