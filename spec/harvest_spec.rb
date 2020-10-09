@@ -252,6 +252,21 @@ RSpec.describe Harvest do
         time_entry = tasks.time_entry.create(**{ spent_date: Date.today.to_s, notes: 'Testing' })
         expect(time_entry.state[:time_entry].id).to eq(te_body[:id])
       end
+
+      it 'map a selected projects' do
+        project_assignments = harvest
+                              .projects.discover
+                              .select { |pa| pa.project.name == 'Bob Co' }
+                              .map { |pa| pa.project.name }
+        expect(project_assignments).to eq(['Bob Co'])
+      end
+
+      it 'map projects' do
+        project_assignments = harvest
+                              .projects.discover
+                              .map { |pa| pa.project.name }
+        expect(project_assignments).to eq(['Bob Co', 'George Co'])
+      end
     end
 
     it 'discover time_entries' do

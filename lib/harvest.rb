@@ -102,6 +102,15 @@ module Harvest
       self
     end
 
+    # Map block of filtered items
+    def map(&block)
+      if @state[:filtered].key?(@state[:active])
+        @state[:filtered][@state[:active]].map(&block)
+      else
+        @state[@state[:active]].map(&block)
+      end
+    end
+
     # Create an instance of object based on state
     def create(**kwargs)
       @state[@state[:active]] = Harvest::Create.const_get(
