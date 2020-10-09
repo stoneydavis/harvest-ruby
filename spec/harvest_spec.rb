@@ -187,16 +187,19 @@ RSpec.describe Harvest do
           ]
         }
       end
+
       let(:project_assignments) do
         harvest.projects.discover.select do |pa|
           pa.project.name == 'George Co'
         end
       end
+
       let(:tasks) do
         project_assignments.project_tasks.discover.select do |ta|
           ta.task.name == 'Example Task'
         end
       end
+
       let(:te_body) do
         {
           id: 1_307_842_691,
@@ -236,6 +239,17 @@ RSpec.describe Harvest do
           :get,
           "#{config[:domain]}/api/v2/users/#{harvest.active_user.id}/project_assignments"
         ).to_return(body: pa_body.to_json, status: 200)
+        stub_request(:post, "#{config[:domain]}/api/v2/time_entries")
+          .with(
+            body: {
+              spent_date: Date.today.to_s,
+              notes: 'Testing',
+              user_id: 1_234_567,
+              task_id: nil,
+              project_id: nil
+            }.to_json
+          )
+          .to_return(status: 200, body: te_body.to_json, headers: {})
       end
 
       # Covered by 'create time entry from project and task'
@@ -247,16 +261,17 @@ RSpec.describe Harvest do
 
       # Covered by 'create time entry from project and task'
       it 'select task assignments' do
-        project_assignments = harvest.projects.discover.select { |pa| pa.project.name == 'George Co' }
-        tasks = project_assignments.project_tasks.discover.select { |ta| ta.task.name == 'Example Task' }
+        tasks = harvest
+                .projects
+                .discover
+                .select { |pa| pa.project.name == 'George Co' }
+                .project_tasks
+                .discover
+                .select { |ta| ta.task.name == 'Example Task' }
         expect(tasks.data[0].id).to eq(654_987)
       end
 
       it 'create time entry from project and task' do
-        stub_request(:post, "#{config[:domain]}/api/v2/time_entries")
-          .with(body: { spent_date: Date.today.to_s, notes: 'Testing', user_id: 1_234_567, task_id: nil, project_id: nil }.to_json)
-          .to_return(status: 200, body: te_body.to_json, headers: {})
-
         time_entry = tasks.time_entry.create(**{ spent_date: Date.today.to_s, notes: 'Testing' })
         expect(time_entry.state[:time_entry].id).to eq(te_body[:id])
       end
@@ -277,22 +292,25 @@ RSpec.describe Harvest do
       end
     end
 
-    it 'discover time_entries' do
-      stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
-        .to_return(status: 200, body: tes_body.to_json)
+    context 'with time entry' do
+      before do
+        stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
+          .to_return(status: 200, body: tes_body.to_json)
+        specific_te = { id: 1_306_062_565 }
+        stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entry/1306062565')
+          .to_return(status: 200, body: specific_te.to_json, headers: {})
+      end
 
-      time_entries = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
-      expect(time_entries.state[:time_entry][0].notes).to eq('Example Note')
-    end
+      it 'discover time_entries' do
+        time_entries = harvest.time_entry.discover(from: Date.today.yesterday.to_s)
+        expect(time_entries.state[:time_entry][0].notes).to eq('Example Note')
+      end
 
-    it 'find a time entry' do
-      specific_te = { id: 1_306_062_565 }
-      stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entry/1306062565')
-        .to_return(status: 200, body: specific_te.to_json, headers: {})
-
-      expect(harvest.time_entry.find(1_306_062_565).state[:time_entry][0].id).to(
-        eq(specific_te[:id])
-      )
+      it 'find a time entry' do
+        expect(harvest.time_entry.find(1_306_062_565).state[:time_entry][0].id).to(
+          eq(1_306_062_565)
+        )
+      end
     end
   end
 end
