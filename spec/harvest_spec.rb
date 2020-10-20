@@ -26,6 +26,10 @@ RSpec.describe Harvest do
     expect { harvest.no_such_method }.to raise_error(Harvest::Exceptions::BadState)
   end
 
+  it 'clone result in new state object' do
+    expect(harvest.clone.state.object_id).not_to eq(harvest.state.object_id)
+  end
+
   context 'with harvest' do
     let(:tes_body) do
       {

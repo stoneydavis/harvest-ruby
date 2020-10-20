@@ -55,6 +55,10 @@ module Harvest
       ].include?(meth)
     end
 
+    def clone
+      Harvest::Client.new(@config, state: @state.clone)
+    end
+
     # @param meth [Symbol]
     # @return [Boolean]
     def respond_to_missing?(meth)
