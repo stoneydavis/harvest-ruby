@@ -208,7 +208,7 @@ module Harvest
     end
 
     def convert_dates(data)
-      %i[created_at updated_at sent_at accepted_at declined_at].each do |key|
+      %i[created_at updated_at sent_at accepted_at declined_at spent_date].each do |key|
         if data.members.include?(key) && !data.method(key).call.nil?
           data.method("#{key}=").call(DateTime.strptime(data.method(key).call))
         end
