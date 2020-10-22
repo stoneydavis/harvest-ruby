@@ -75,8 +75,7 @@ module Harvest
       def api_call(struct)
         JSON.parse(
           send(struct.http_method.to_sym, struct).tap do
-            require 'pry'
-            # binding.pry
+            # require 'pry'; binding.pry
           end
         )
       end

@@ -78,7 +78,7 @@ module Harvest
         super
       end
     rescue NoMethodError
-      # binding.pry
+      # require 'pry'; binding.pry
       raise Harvest::Exceptions::BadState, "#{meth} is an invalid state change."
     end
 
