@@ -301,7 +301,7 @@ RSpec.describe Harvest do
         stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
           .to_return(status: 200, body: tes_body.to_json)
         specific_te = { id: 1_306_062_565 }
-        stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entry/1306062565')
+        stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entries/1306062565')
           .to_return(status: 200, body: specific_te.to_json, headers: {})
       end
 
