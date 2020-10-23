@@ -125,8 +125,16 @@ module Harvest
         client[struct.path].get(struct.headers)
       end
 
+      def delete(struct)
+        client[struct.path].delete(struct.headers)
+      end
+
       def post(struct)
         client[struct.path].post(struct.payload, struct.headers)
+      end
+
+      def patch(struct)
+        client[struct.path].patch(struct.payload, struct.headers)
       end
     end
 
