@@ -11,6 +11,7 @@ require 'harvest/exceptions'
 require 'harvest/finders'
 require 'harvest/discovers'
 require 'harvest/creates'
+require 'harvest/changers'
 
 # Conform to naming pattern of Finder, Discover, Creators.
 # @param key [Symbol] symbol of state
@@ -90,6 +91,15 @@ module Harvest
       self
     end
 
+    # Find single instance of resource
+    def change(**kwargs)
+      @state[@state[:active]].map do |obj|
+        Harvest::Changers.const_get(to_class_name(@state[:active])).new.change(
+          @factory, @client, active_user, @state, kwargs
+        )
+      end
+      self
+    end
     # Discover resources
     def discover(**params)
       @state[@state[:active]] = Harvest::Discovers
@@ -98,6 +108,16 @@ module Harvest
                                 .discover(
                                   @admin_api, @client, @factory, active_user, @state, params
                                 )
+      self
+    end
+
+    # Create an instance of object based on state
+    def create(**kwargs)
+      @state[@state[:active]] = Harvest::Create.const_get(
+        to_class_name(@state[:active])
+      ).new.create(
+        @factory, @client, active_user, @state, kwargs
+      )
       self
     end
 
@@ -115,16 +135,6 @@ module Harvest
     # Return data from the active state in the base state or filtered.
     def data
       @state[@state[:active]]
-    end
-
-    # Create an instance of object based on state
-    def create(**kwargs)
-      @state[@state[:active]] = Harvest::Create.const_get(
-        to_class_name(@state[:active])
-      ).new.create(
-        @factory, @client, active_user, @state, kwargs
-      )
-      self
     end
   end
 end
