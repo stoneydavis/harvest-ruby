@@ -10,7 +10,7 @@ module Harvest
 
     class TimeEntry
       def find(factory, client, id)
-        [factory.time_entry(client.api_call(client.api_caller("time_entry/#{id}")))]
+        [factory.time_entry(client.api_call(client.api_caller("time_entries/#{id}")))]
       end
     end
   end
