@@ -39,12 +39,15 @@ module Harvest
       @client = Harvest::HTTP::Api.new(**@config)
       @factory = Harvest::ResourceFactory.new
       @state = state
-      @active_user = @factory.user(@client.api_call(@client.api_caller('/users/me')))
-      @admin_api = if @active_user.is_admin
+      @admin_api = if active_user.is_admin
                      config.admin_api
                    else
                      false
                    end
+    end
+
+    def active_user
+      @state[:active_user] ||= @factory.user(@client.api_call(@client.api_caller('/users/me')))
     end
 
     def allowed?(meth)
