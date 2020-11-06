@@ -71,7 +71,7 @@ module Harvest
 
       # Make a api call to an endpoint.
       # @api public
-      # @param struct [Struct::ApiCall]
+      # @param struct [ApiCall]
       def api_call(struct)
         JSON.parse(
           send(struct.http_method.to_sym, struct).tap do
@@ -85,7 +85,9 @@ module Harvest
       # @param struct [Struct::Pagination]
       def pagination(struct)
         struct.param[:page] = struct.page_count
-        page = api_call(struct.to_api_call)
+        page = api_call(struct.to_api_call).tap do
+          # require 'pry'; binding.pry
+        end
         struct.rows.concat(page[struct.data_key])
 
         return struct.rows if struct.page_count >= page['total_pages']
@@ -108,11 +110,11 @@ module Harvest
       end
 
       def api_caller(path, http_method: 'get', param: {}, payload: nil, headers: {})
-        Struct::ApiCall.new(
+        ApiCall.new(
           {
             path: path,
             http_method: http_method.to_sym,
-            param: param,
+            params: param,
             payload: payload,
             headers: headers
           }
@@ -138,17 +140,30 @@ module Harvest
       end
     end
 
-    Struct.new(
-      'ApiCall',
-      :path,
-      :http_method,
-      :param,
-      :payload,
-      :headers,
-      keyword_init: true
-    ) do
-      def param(params)
-        headers['params'] = params
+    class NoOptionProvided; end
+
+    class ApiCall
+      attr_accessor :path, :http_method, :payload, :headers
+
+      def initialize(path:, payload: {}, http_method: 'get', headers: {}, params: {})
+        @path = path
+        @http_method = http_method
+        @payload = payload
+        @headers = headers
+        param(params)
+      end
+
+      def param(params = NoOptionProvided)
+        if params == NoOptionProvided
+          @headers['params']
+        else
+          @headers['params'] = params
+        end
+      end
+
+      def param=(params)
+        param(params)
+        self
       end
     end
 
@@ -165,11 +180,11 @@ module Harvest
       keyword_init: true
     ) do
       def to_api_call
-        Struct::ApiCall.new(
-          {
+        ApiCall.new(
+          **{
             path: path,
             http_method: http_method,
-            param: param,
+            params: param,
             payload: payload,
             headers: headers
           }
