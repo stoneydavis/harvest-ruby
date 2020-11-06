@@ -9,12 +9,15 @@ module Harvest
           send(kwargs[:action].to_sym, factory, client, te)
         end
       end
-      private 
+
+      private
+
       def restart(factory, client, te)
         # PATCH /v2/time_entries/{TIME_ENTRY_ID}/restart
         # binding.pry
         [factory.time_entry(client.api_call(client.api_caller("time_entries/#{te.id}/restart", http_method: 'patch')))]
       end
+
       def stop(factory, client, te)
         # PATCH /v2/time_entries/{TIME_ENTRY_ID}/stop
         [factory.time_entry(client.api_call(client.api_caller("time_entries/#{te.id}/stop", http_method: 'patch')))]
