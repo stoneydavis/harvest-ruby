@@ -8,6 +8,7 @@ gemspec
 gem 'activesupport', '~> 6.0'
 gem 'configparser', '~> 0.1.7', group: :development
 gem 'pry', '~> 0.13.1', group: :development
+gem 'pry-stack_explorer', '~> 0.5.1', group: :development
 gem 'rake', '~> 12.0', group: :development
 gem 'redcarpet', '~> 3.5', group: :development
 gem 'reek', '~> 6.0', group: :development
