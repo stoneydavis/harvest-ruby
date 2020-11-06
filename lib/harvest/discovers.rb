@@ -43,6 +43,9 @@ module Harvest
         paginator.path = 'time_entries'
         paginator.data_key = 'time_entries'
         paginator.param = params
+
+        # require 'pry'; binding.pry
+
         client.pagination(paginator).map do |time_entry|
           factory.time_entry(time_entry)
         end
