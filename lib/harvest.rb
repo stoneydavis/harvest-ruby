@@ -103,6 +103,7 @@ module Harvest
       end
       self
     end
+
     # Discover resources
     def discover(**params)
       @state[@state[:active]] = Harvest::Discovers
