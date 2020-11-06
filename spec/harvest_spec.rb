@@ -298,7 +298,7 @@ RSpec.describe Harvest do
 
     context 'with time entry' do
       before do
-        stub_request(:get, "#{config[:domain]}/api/v2/time_entries")
+        stub_request(:get, "#{config[:domain]}/api/v2/time_entries?from=#{Date.today.yesterday}&page=1")
           .to_return(status: 200, body: tes_body.to_json)
         specific_te = { id: 1_306_062_565 }
         stub_request(:get, 'https://exampledomain.harvestapp.com/api/v2/time_entries/1306062565')
