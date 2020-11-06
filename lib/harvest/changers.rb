@@ -6,7 +6,7 @@ module Harvest
       def change(factory, client, _active_user, state, kwargs)
         # binding.pry
         state[state[:active]].map do |te|
-          self.send(kwargs[:action].to_sym, factory, client, te)
+          send(kwargs[:action].to_sym, factory, client, te)
         end
       end
       private 
