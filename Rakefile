@@ -9,6 +9,8 @@ RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new(:spec) do |rubocop|
   rubocop.options << '--auto-correct'
   rubocop.options << '--display-cop-names'
+  rubocop.options << '--extra-details'
+  rubocop.options << '--display-style-guide'
 end
 
 YARD::Rake::YardocTask.new do |t|
