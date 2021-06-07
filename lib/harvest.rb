@@ -15,6 +15,7 @@ require 'harvest/changers'
 
 # Conform to naming pattern of Finder, Discover, Creators.
 # @param key [Symbol] symbol of state
+# @return [Symbol] Symbol to use in class lookups
 def to_class_name(key)
   key.to_s.split('_').map(&:capitalize).join.to_sym
 end
@@ -96,7 +97,7 @@ module Harvest
 
     # Find single instance of resource
     def change(**kwargs)
-      @state[@state[:active]].map do |obj|
+      @state[@state[:active]].map do |_obj|
         Harvest::Changers.const_get(to_class_name(@state[:active])).new.change(
           @factory, @client, active_user, @state, kwargs
         )

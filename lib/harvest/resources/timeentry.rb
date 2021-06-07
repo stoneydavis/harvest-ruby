@@ -95,6 +95,7 @@ module Harvest
     TimeEntryExternalReference = Struct.new(
       'TimeEntryExternalReference',
       :id,
+      :account_id,
       :group_id,
       :permalink,
       :service,

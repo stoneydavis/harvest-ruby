@@ -95,7 +95,8 @@ RSpec.describe Harvest::ResourceFactory do
       group_id: '16117',
       permalink: 'https://example.com',
       service: 'example.com',
-      service_icon_url: 'https://example.com/name.png'
+      service_icon_url: 'https://example.com/name.png',
+      account_id: '123456'
     },
     invoice: nil,
     hours: 0.43,
@@ -191,6 +192,10 @@ RSpec.describe Harvest::ResourceFactory do
 
     it 'sets external_reference service' do
       expect(te.external_reference.service).to eq('example.com')
+    end
+
+    it 'sets external_reference account_id' do
+      expect(te.external_reference.account_id).to eq('123456')
     end
   end
 
