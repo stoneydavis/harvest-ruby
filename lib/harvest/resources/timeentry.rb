@@ -26,6 +26,8 @@ module Harvest
     #   associated invoice's id and number.
     # @param hours [decimal]
     #   Number of (decimal time) hours tracked in this time entry.
+    # @param hours_without_timer [decimal]
+    #   Number of (decimal time) hours already tracked in this time entry, before the timer was last started.
     # @param rounded_hours [decimal]
     #   Number of (decimal time) hours tracked in this time entry used in summary
     #   reports and invoices. This value is rounded according to the Time Rounding
@@ -73,6 +75,7 @@ module Harvest
       :external_reference,
       :invoice,
       :hours,
+      :hours_without_timer,
       :rounded_hours,
       :notes,
       :is_locked,
